@@ -9,28 +9,28 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo '📥 Obteniendo código desde GitHub...'
+                echo 'Obteniendo código desde GitHub...'
                 checkout scm
             }
         }
         
         stage('Build with Gradle') {
             steps {
-                echo '🔨 Compilando aplicación Android...'
+                echo 'Compilando aplicación Android...'
                 sh './gradlew clean assembleDebug'
             }
         }
         
         stage('Test') {
             steps {
-                echo '🧪 Ejecutando pruebas unitarias...'
+                echo 'Ejecutando pruebas unitarias...'
                 sh './gradlew test'
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Construyendo imagen Docker...'
+                echo 'Construyendo imagen Docker...'
                 script {
                     docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                     docker.build("${DOCKER_IMAGE}:latest")
