@@ -1,0 +1,16 @@
+<!--res/drawable/orange.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="56dp"
+    android:viewportWidth="56"
+    android:viewportHeight="56">
+    <path
+        android:fillColor="#FFCC00"
+        android:pathData="M28,28c-10v10h10V28z"/>
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M28,28c0,6 -5,10 -10,10s-10,-4 -10,-10 5,-10 10,-10 10,4 10,10z"/>
+    <path
+        android:fillColor="#009900"
+        android:pathData="M28,28c0,6 -5,10 -10,10s-10,-4 -10,-10 5,-10 10,-10 10,4 10,10h"/>
+</vector>
