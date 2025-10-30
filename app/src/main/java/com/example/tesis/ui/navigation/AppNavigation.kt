@@ -96,7 +96,10 @@ fun AppNavigation(
             RegisterScreen(navController = navController)
         }
         composable("forgot_password") {
-            ForgotPasswordScreen(navController = navController)
+            ForgotPasswordScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
         composable("home") {
             // ⭐ Pasar el authViewModel compartido

@@ -148,4 +148,12 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    suspend fun sendPasswordResetEmail(email: String) {
+        try {
+            auth.sendPasswordResetEmail(email).await()
+        } catch (e: Exception) {
+            throw Exception("No se pudo enviar el correo de recuperación. Verifica que el correo esté registrado.")
+        }
+    }
 }
