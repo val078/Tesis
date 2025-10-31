@@ -80,17 +80,28 @@ pipeline {
             steps {
                 echo 'Subiendo APK a Firebase para distribución por QR...'
                 sh '''
+                    set -e
+                    
+                    # Instalar curl primero
+                    echo "Instalando dependencias..."
+                    apt-get update -qq > /dev/null 2>&1
+                    apt-get install -y curl > /dev/null 2>&1
+                    
                     # Instalar Node.js y npm
                     echo "Instalando Node.js..."
                     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
                     apt-get install -y nodejs > /dev/null 2>&1
                     
+                    # Verificar instalación
+                    echo "Node.js version: $(node --version)"
+                    echo "npm version: $(npm --version)"
+                    
                     # Instalar Firebase CLI
                     echo "Instalando Firebase CLI..."
-                    npm install -g firebase-tools > /dev/null 2>&1
+                    npm install -g firebase-tools
                     
                     # Distribuir APK
-                    echo "Distribuyendo APK..."
+                    echo "Distribuyendo APK a Firebase..."
                     firebase appdistribution:distribute \
                         app/build/outputs/apk/debug/app-debug.apk \
                         --app ${FIREBASE_APP_ID} \
