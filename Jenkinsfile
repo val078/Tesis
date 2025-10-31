@@ -30,7 +30,7 @@ pipeline {
                 timeout(time: 40, unit: 'MINUTES')
             }
             steps {
-                echo '🔨 Instalando Android SDK y compilando APK...'
+                echo 'Instalando Android SDK y compilando APK...'
                 withCredentials([file(credentialsId: 'firebase-google-services-json', variable: 'GOOGLE_SERVICES_FILE')]) {
                     sh '''
                         set -e
@@ -76,6 +76,33 @@ pipeline {
             }
         }
         
+        stage('Subir a Firebase App Distribution') {
+            steps {
+                echo 'Subiendo APK a Firebase para distribución por QR...'
+                sh '''
+                    # Instalar Node.js y npm
+                    echo "Instalando Node.js..."
+                    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
+                    apt-get install -y nodejs > /dev/null 2>&1
+                    
+                    # Instalar Firebase CLI
+                    echo "Instalando Firebase CLI..."
+                    npm install -g firebase-tools > /dev/null 2>&1
+                    
+                    # Distribuir APK
+                    echo "Distribuyendo APK..."
+                    firebase appdistribution:distribute \
+                        app/build/outputs/apk/debug/app-debug.apk \
+                        --app ${FIREBASE_APP_ID} \
+                        --token ${FIREBASE_TOKEN} \
+                        --groups "testers" \
+                        --release-notes "Build #${BUILD_NUMBER} - Compilado automáticamente vía CI/CD"
+                    
+                    echo "APK subido exitosamente a Firebase App Distribution"
+                '''
+            }
+        }
+        
         stage('Archivar APK') {
             steps {
                 echo 'Guardando APK como artefacto...'
@@ -87,11 +114,11 @@ pipeline {
     post {
         success {
             echo '¡Pipeline completado exitosamente!'
-            echo 'APK generado correctamente'
-            echo 'Descarga el APK desde Jenkins Artifacts'
+            echo 'APK generado y subido a Firebase'
+            echo 'Ve a Firebase Console para obtener el link de descarga y generar el QR'
         }
         failure {
-            echo 'El build falló. Revisa los logs arriba.'
+            echo 'El build falló. Revisa los logs.'
         }
         always {
             echo 'Limpiando workspace...'
