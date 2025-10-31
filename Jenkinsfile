@@ -33,33 +33,39 @@ pipeline {
             }
             steps {
                 echo 'Instalando Android SDK y compilando el APK...'
-                sh '''
-                    set -e  #Detiene el script si ocurre algún error
-                    
-                    echo "Instalando dependencias básicas..."
-                    apt-get update -y && apt-get install -y wget unzip > /dev/null
+                withCredentials([file(credentialsId: 'firebase-google-services-json', variable: 'GOOGLE_SERVICES_FILE')]) {
+                    sh '''
+                        set -e  #Detiene el script si ocurre algún error
+                        
+                        echo "Instalando dependencias básicas..."
+                        apt-get update -y && apt-get install -y wget unzip > /dev/null
+    
+                        export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
+                        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+                        cd $ANDROID_SDK_ROOT/cmdline-tools
+    
+                        echo "Descargando Android Command Line Tools..."
+                        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+                        unzip -q tools.zip
+                        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+                        mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true  # evita error si carpeta ya existe
+    
+                        echo "Aceptando licencias e instalando plataformas..."
+                        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+                        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+                            "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+    
+                        echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
 
-                    export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
-                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-                    cd $ANDROID_SDK_ROOT/cmdline-tools
-
-                    echo "Descargando Android Command Line Tools..."
-                    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-                    unzip -q tools.zip
-                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
-                    mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true  # evita error si carpeta ya existe
-
-                    echo "Aceptando licencias e instalando plataformas..."
-                    yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
-                    $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
-                        "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-                    echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
-
-                    echo "Compilando con Gradle..."
-                    cd $WORKSPACE
-                    ./gradlew clean assembleDebug --no-daemon --stacktrace --console=plain
-                '''
+                        echo "Copiando google-services.json..."
+                        cp $GOOGLE_SERVICES_FILE $WORKSPACE/app/google-services.json
+                        echo "Archivo copiado en: app/google-services.json"
+    
+                        echo "Compilando con Gradle..."
+                        cd $WORKSPACE
+                        ./gradlew clean assembleDebug --no-daemon --stacktrace --console=plain
+                    '''
+                }
             }
         }
         
