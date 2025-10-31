@@ -76,41 +76,55 @@ pipeline {
             }
         }
         
-        stage('Subir a Firebase App Distribution') {
+        stage('Subir a GitHub Releases') {
             steps {
-                echo 'Subiendo APK a Firebase para distribución por QR...'
-                sh '''
-                    set -e
-                    
-                    # Instalar curl primero
-                    echo "Instalando dependencias..."
-                    apt-get update -qq > /dev/null 2>&1
-                    apt-get install -y curl > /dev/null 2>&1
-                    
-                    # Instalar Node.js y npm
-                    echo "Instalando Node.js..."
-                    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
-                    apt-get install -y nodejs > /dev/null 2>&1
-                    
-                    # Verificar instalación
-                    echo "Node.js version: $(node --version)"
-                    echo "npm version: $(npm --version)"
-                    
-                    # Instalar Firebase CLI
-                    echo "Instalando Firebase CLI..."
-                    npm install -g firebase-tools
-                    
-                    # Distribuir APK
-                    echo "Distribuyendo APK a Firebase..."
-                    firebase appdistribution:distribute \
-                        app/build/outputs/apk/debug/app-debug.apk \
-                        --app ${FIREBASE_APP_ID} \
-                        --token ${FIREBASE_TOKEN} \
-                        --groups "testers" \
-                        --release-notes "Build #${BUILD_NUMBER} - Compilado automáticamente vía CI/CD"
-                    
-                    echo "APK subido exitosamente a Firebase App Distribution"
-                '''
+                echo 'Subiendo APK a GitHub Releases...'
+                withCredentials([string(credentialsId: 'github-release-token', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        set -e
+                        
+                        # Instalar dependencias
+                        apt-get update -qq > /dev/null 2>&1
+                        apt-get install -y curl jq > /dev/null 2>&1
+                        
+                        # Variables
+                        REPO_OWNER="val078"
+                        REPO_NAME="Tesis"
+                        TAG_NAME="v${BUILD_NUMBER}"
+                        RELEASE_NAME="Build ${BUILD_NUMBER}"
+                        APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+                        
+                        echo "Creando release ${TAG_NAME}..."
+                        
+                        # Crear release en GitHub
+                        RELEASE_RESPONSE=$(curl -s -X POST \
+                          -H "Authorization: token ${GITHUB_TOKEN}" \
+                          -H "Accept: application/vnd.github.v3+json" \
+                          https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases \
+                          -d "{
+                            \\"tag_name\\": \\"${TAG_NAME}\\",
+                            \\"name\\": \\"${RELEASE_NAME}\\",
+                            \\"body\\": \\"APK generado automáticamente por CI/CD Jenkins\\\\nBuild #${BUILD_NUMBER}\\",
+                            \\"draft\\": false,
+                            \\"prerelease\\": false
+                          }")
+                        
+                        # Obtener upload URL
+                        UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r .upload_url | sed 's/{?name,label}//')
+                        
+                        echo "Subiendo APK..."
+                        
+                        # Subir APK
+                        curl -s -X POST \
+                          -H "Authorization: token ${GITHUB_TOKEN}" \
+                          -H "Content-Type: application/vnd.android.package-archive" \
+                          --data-binary @${APK_PATH} \
+                          "${UPLOAD_URL}?name=app-release.apk"
+                        
+                        echo "APK subido exitosamente"
+                        echo "Descargable en: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/app-release.apk"
+                    '''
+                }
             }
         }
         
@@ -125,8 +139,8 @@ pipeline {
     post {
         success {
             echo 'Pipeline completado exitosamente!'
-            echo 'APK generado y subido a Firebase'
-            echo 'Ve a Firebase Console para obtener el link de descarga y generar el QR'
+            echo 'APK subido a GitHub Releases'
+            echo 'Link directo: https://github.com/val078/Tesis/releases/latest/download/app-release.apk'
         }
         failure {
             echo 'El build falló. Revisa los logs.'
