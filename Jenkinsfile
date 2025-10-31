@@ -30,6 +30,9 @@ pipeline {
                 echo 'Instalando Android SDK y compilando el APK...'
                 sh '''
                     set -e  #Detiene el script si ocurre algún error
+                    
+                    echo "📦 Instalando dependencias básicas..."
+                    apt-get update -y && apt-get install -y wget unzip > /dev/null
 
                     export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
                     mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
@@ -44,7 +47,7 @@ pipeline {
                     echo "Aceptando licencias e instalando plataformas..."
                     yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
                     $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
-                        "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+                        "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
                     echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
 
