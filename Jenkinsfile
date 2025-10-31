@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'openjdk:17-slim'
+            args '-u root'
+        }
+    }
     
     options {
         timeout(time: 60, unit: 'MINUTES')
@@ -31,7 +36,7 @@ pipeline {
                 sh '''
                     set -e  #Detiene el script si ocurre algún error
                     
-                    echo "📦 Instalando dependencias básicas..."
+                    echo "Instalando dependencias básicas..."
                     apt-get update -y && apt-get install -y wget unzip > /dev/null
 
                     export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
