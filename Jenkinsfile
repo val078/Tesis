@@ -96,33 +96,43 @@ pipeline {
                         
                         echo "Creando release ${TAG_NAME}..."
                         
-                        # Crear release en GitHub
+                        # Crear release en GitHub y guardar respuesta
                         RELEASE_RESPONSE=$(curl -s -X POST \
                           -H "Authorization: token ${GITHUB_TOKEN}" \
                           -H "Accept: application/vnd.github.v3+json" \
                           https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases \
-                          -d "{
-                            \\"tag_name\\": \\"${TAG_NAME}\\",
-                            \\"name\\": \\"${RELEASE_NAME}\\",
-                            \\"body\\": \\"APK generado automáticamente por CI/CD Jenkins\\\\nBuild #${BUILD_NUMBER}\\",
-                            \\"draft\\": false,
-                            \\"prerelease\\": false
-                          }")
+                          -d "{\\"tag_name\\":\\"${TAG_NAME}\\",\\"name\\":\\"${RELEASE_NAME}\\",\\"body\\":\\"APK generado automaticamente por CI/CD Jenkins - Build ${BUILD_NUMBER}\\",\\"draft\\":false,\\"prerelease\\":false}")
                         
-                        # Obtener upload URL
-                        UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r .upload_url | sed 's/{?name,label}//')
+                        # Extraer upload URL (método más robusto)
+                        UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | grep -o '"upload_url": *"[^"]*"' | grep -o 'https://[^"]*' | sed 's/{?name,label}//')
                         
+                        if [ -z "$UPLOAD_URL" ]; then
+                            echo "Error: No se pudo obtener el upload URL"
+                            echo "Respuesta de GitHub:"
+                            echo "$RELEASE_RESPONSE"
+                            exit 1
+                        fi
+                        
+                        echo "Upload URL obtenido: $UPLOAD_URL"
                         echo "Subiendo APK..."
                         
                         # Subir APK
-                        curl -s -X POST \
+                        UPLOAD_RESPONSE=$(curl -s -X POST \
                           -H "Authorization: token ${GITHUB_TOKEN}" \
                           -H "Content-Type: application/vnd.android.package-archive" \
                           --data-binary @${APK_PATH} \
-                          "${UPLOAD_URL}?name=app-release.apk"
+                          "${UPLOAD_URL}?name=app-release.apk")
                         
-                        echo "APK subido exitosamente"
-                        echo "Descargable en: https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/app-release.apk"
+                        # Verificar si la subida fue exitosa
+                        if echo "$UPLOAD_RESPONSE" | grep -q '"browser_download_url"'; then
+                            echo "APK subido exitosamente"
+                            DOWNLOAD_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/app-release.apk"
+                            echo "Link de descarga directo: $DOWNLOAD_URL"
+                            echo "Link latest (siempre apunta a la ultima version): https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest/download/app-release.apk"
+                        else
+                            echo "Posible error al subir APK. Respuesta:"
+                            echo "$UPLOAD_RESPONSE"
+                        fi
                     '''
                 }
             }
