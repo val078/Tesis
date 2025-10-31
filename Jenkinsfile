@@ -79,12 +79,16 @@ pipeline {
         }
         
         stage('Build Docker Image') {
-            steps {
-                echo 'Construyendo imagen Docker...'
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                    docker.build("${DOCKER_IMAGE}:latest")
-                }
+        steps {
+            echo 'Construyendo imagen Docker...'
+            sh '''
+                echo "Probando acceso a Docker..."
+                which docker || echo "docker no está en el PATH"
+                docker version || echo "No se pudo acceder al daemon"
+    
+                echo "Construyendo imagen..."
+                /usr/bin/docker build -t android-app-tesis:${BUILD_NUMBER} .
+            '''
             }
         }
         
