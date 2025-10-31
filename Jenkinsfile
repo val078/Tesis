@@ -27,8 +27,31 @@ pipeline {
                 timeout(time: 40, unit: 'MINUTES')
             }
             steps {
-                echo 'Compilando APK con Gradle...'
-                sh './gradlew clean assembleDebug --no-daemon --stacktrace'
+                echo 'Instalando Android SDK y compilando el APK...'
+                sh '''
+                    set -e  #Detiene el script si ocurre algún error
+
+                    export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
+                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+                    cd $ANDROID_SDK_ROOT/cmdline-tools
+
+                    echo "Descargando Android Command Line Tools..."
+                    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+                    unzip -q tools.zip
+                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+                    mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true  # evita error si carpeta ya existe
+
+                    echo "Aceptando licencias e instalando plataformas..."
+                    yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+                    $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+                        "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+                    echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
+
+                    echo "Compilando con Gradle..."
+                    cd $WORKSPACE
+                    ./gradlew clean assembleDebug --no-daemon --stacktrace --console=plain
+                '''
             }
         }
         
