@@ -79,18 +79,21 @@ pipeline {
         }
         
         stage('Build Docker Image') {
-        steps {
-            echo 'Construyendo imagen Docker...'
-            sh '''
-                echo "Probando acceso a Docker..."
-                which docker || echo "docker no está en el PATH"
-                docker version || echo "No se pudo acceder al daemon"
-    
-                echo "Construyendo imagen..."
-                /usr/bin/docker build -t android-app-tesis:${BUILD_NUMBER} .
-            '''
+        agent {
+            docker {
+                image 'docker:latest'
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
             }
         }
+        steps {
+            echo 'Verificando acceso a Docker dentro del stage...'
+            sh 'docker version'
+
+            echo 'Construyendo imagen Docker...'
+            sh 'docker build -t android-app-tesis:${BUILD_NUMBER} .'
+        }
+    }
+
         
         stage('Subir a Firebase App Distribution') {
             when {
