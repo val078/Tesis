@@ -138,7 +138,7 @@ pipeline {
     
     post {
         success {
-            echo 'Pipeline completado exitosamente!'
+            echo 'Pipeline completado exitosamente'
             echo 'APK subido a GitHub Releases'
             echo 'Link directo: https://github.com/val078/Tesis/releases/latest/download/app-release.apk'
         }
