@@ -12,8 +12,6 @@ pipeline {
     }
     
     environment {
-        DOCKER_IMAGE = 'android-app-tesis'
-        DOCKER_TAG = "${BUILD_NUMBER}"
         FIREBASE_TOKEN = credentials('firebase-token')
         FIREBASE_APP_ID = '1:445628311030:android:b4e1e2eb06ea93b80593d7'
     }
@@ -27,45 +25,39 @@ pipeline {
             }
         }
         
-        stage('Build APK Gradle') {
+        stage('Build APK con Gradle') {
             options {
                 timeout(time: 40, unit: 'MINUTES')
             }
             steps {
-                echo 'Instalando Android SDK y compilando el APK...'
-                withCredentials([file(credentialsId: 'firebase-google-services-json', variable: 'GOOGLE_SERVICES_FILE')]) {
-                    sh '''
-                        set -e  #Detiene el script si ocurre algún error
-                        
-                        echo "Instalando dependencias básicas..."
-                        apt-get update -y && apt-get install -y wget unzip > /dev/null
+                echo '🔨 Instalando Android SDK y compilando APK...'
+                sh '''
+                    set -e
+                    
+                    echo "Instalando dependencias básicas..."
+                    apt-get update -qq && apt-get install -y wget unzip > /dev/null
     
-                        export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
-                        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-                        cd $ANDROID_SDK_ROOT/cmdline-tools
+                    export ANDROID_SDK_ROOT=$WORKSPACE/android-sdk
+                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+                    cd $ANDROID_SDK_ROOT/cmdline-tools
     
-                        echo "Descargando Android Command Line Tools..."
-                        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-                        unzip -q tools.zip
-                        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
-                        mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true  # evita error si carpeta ya existe
+                    echo "Descargando Android Command Line Tools..."
+                    wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+                    unzip -q tools.zip
+                    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+                    mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ 2>/dev/null || true
     
-                        echo "Aceptando licencias e instalando plataformas..."
-                        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
-                        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
-                            "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+                    echo "Aceptando licencias e instalando plataformas..."
+                    yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1
+                    $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+                        "platform-tools" "platforms;android-35" "build-tools;35.0.0" > /dev/null
     
-                        echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
-
-                        echo "Copiando google-services.json..."
-                        cp $GOOGLE_SERVICES_FILE $WORKSPACE/app/google-services.json
-                        echo "Archivo copiado en: app/google-services.json"
+                    echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
     
-                        echo "Compilando con Gradle..."
-                        cd $WORKSPACE
-                        ./gradlew clean assembleDebug --no-daemon --stacktrace --console=plain
-                    '''
-                }
+                    echo "🔨 Compilando APK con Gradle..."
+                    cd $WORKSPACE
+                    ./gradlew clean assembleDebug --no-daemon --console=plain
+                '''
             }
         }
         
@@ -75,42 +67,6 @@ pipeline {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                     sh './gradlew test --no-daemon'
                 }
-            }
-        }
-        
-        stage('Build Docker Image') {
-        agent {
-            docker {
-                image 'docker:latest'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
-            }
-        }
-        steps {
-            echo 'Verificando acceso a Docker dentro del stage...'
-            sh 'docker version'
-
-            echo 'Construyendo imagen Docker...'
-            sh 'docker build -t android-app-tesis:${BUILD_NUMBER} .'
-        }
-    }
-
-        
-        stage('Subir a Firebase App Distribution') {
-            when {
-                expression { env.FIREBASE_APP_ID != '1:445628311030:android:b4e1e2eb06ea93b80593d7' }
-            }
-            steps {
-                echo 'Subiendo APK a Firebase para distribución por QR...'
-                sh '''
-                    npm list -g firebase-tools || npm install -g firebase-tools
-                    
-                    firebase appdistribution:distribute \
-                        app/build/outputs/apk/debug/app-debug.apk \
-                        --app ${FIREBASE_APP_ID} \
-                        --token ${FIREBASE_TOKEN} \
-                        --groups "testers" \
-                        --release-notes "Build #${BUILD_NUMBER} - Compilado automáticamente via CI/CD"
-                '''
             }
         }
         
@@ -125,11 +81,11 @@ pipeline {
     post {
         success {
             echo '¡Pipeline completado exitosamente!'
-            echo "Imagen Docker creada: ${DOCKER_IMAGE}:${DOCKER_TAG}"
-            echo 'APK disponible en artifacts'
+            echo 'APK generado correctamente'
+            echo 'Descarga el APK desde Jenkins Artifacts'
         }
         failure {
-            echo 'El build falló. Revisa los logs.'
+            echo 'El build falló. Revisa los logs arriba.'
         }
         always {
             echo 'Limpiando workspace...'
