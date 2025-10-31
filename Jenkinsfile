@@ -124,7 +124,7 @@ pipeline {
     
     post {
         success {
-            echo '¡Pipeline completado exitosamente!'
+            echo 'Pipeline completado exitosamente!'
             echo 'APK generado y subido a Firebase'
             echo 'Ve a Firebase Console para obtener el link de descarga y generar el QR'
         }
