@@ -392,28 +392,34 @@ private fun PeriodButton(
 
     Button(
         onClick = onClick,
-        modifier = modifier.height(48.dp),
+        modifier = modifier
+            .height(52.dp), // 🔥 Aumentado de 48dp a 52dp
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = if (isSelected) 4.dp else 0.dp
-        )
+        ),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp) // 🔥 Padding ajustado
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxHeight() // 🔥 Asegura que use toda la altura
         ) {
             Text(
                 text = period.emoji,
-                fontSize = 16.sp
+                fontSize = 18.sp, // 🔥 Aumentado de 16sp
+                modifier = Modifier.padding(bottom = 2.dp) // 🔥 Pequeño espacio
             )
             Text(
                 text = period.label,
-                fontSize = 11.sp,
+                fontSize = 10.sp, // 🔥 Reducido de 11sp para que quepa mejor
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = textColor
+                color = textColor,
+                maxLines = 1, // 🔥 Fuerza a una sola línea
+                textAlign = TextAlign.Center
             )
         }
     }

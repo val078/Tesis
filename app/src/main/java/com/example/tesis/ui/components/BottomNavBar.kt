@@ -28,12 +28,14 @@ import com.example.tesis.ui.theme.TextGray
 @Composable
 fun BottomNavBar(
     currentRoute: String,
-    navController: NavController
+    navController: NavController,
+    modifier: Modifier = Modifier
 ) {
     // ✅ Barra de navegación inferior con gradiente
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .height(70.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         color = Color.White,

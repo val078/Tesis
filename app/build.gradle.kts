@@ -57,19 +57,23 @@ android {
 
 dependencies {
 
+    // Color a barra de sistema
+    implementation(libs.accompanist.systemuicontroller)
+
+    // PDF
     implementation(libs.itext7.core)
     implementation(libs.html2pdf)
 
-    // ⭐ WorkManager para notificaciones programadas
+    // WorkManager para notificaciones programadas
     implementation(libs.androidx.work.runtime.ktx)
 
-    // ⭐ Notificaciones
+    // Notificaciones
     implementation(libs.androidx.core.ktx.v1170)
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material.icons.extended)
 
-    //dagger
+    // Dagger
     implementation(libs.hilt.android)
 
     // Core Android
@@ -117,10 +121,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // 🤖 GOOGLE GEMINI AI - NUEVA DEPENDENCIA
+    // Gemini AI
     implementation(libs.generativeai)
 
-    // Coroutines (necesarias para Gemini)
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android.v173)
     implementation(libs.kotlinx.coroutines.core.v173)
     implementation(libs.kotlinx.coroutines.play.services)

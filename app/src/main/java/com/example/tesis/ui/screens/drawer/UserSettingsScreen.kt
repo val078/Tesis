@@ -1,4 +1,4 @@
-// Crea: screens/UserSettingsScreen.kt
+// screens/UserSettingsScreen.kt
 package com.example.tesis.ui.screens.drawer
 
 import androidx.compose.animation.*
@@ -35,13 +35,18 @@ fun UserSettingsScreen(
     var showSaveDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+    var isInitialLoad by remember { mutableStateOf(true) }
+
     val hasChanges = remember(settings) {
-        // Detectar si hay cambios (simplificado)
         true
     }
 
+    LaunchedEffect(Unit) {
+        isInitialLoad = false
+    }
+
     LaunchedEffect(saveSuccess) {
-        if (saveSuccess) {
+        if (saveSuccess && !isInitialLoad) {
             showSaveDialog = true
             viewModel.resetSaveSuccess()
         }
@@ -141,7 +146,16 @@ fun UserSettingsScreen(
                     item {
                         StatusBanner(
                             enabled = settings.enabled,
-                            onToggle = { viewModel.toggleAllNotifications(it) }
+                            onToggle = {
+                                viewModel.toggleAllNotifications(it)
+                                // 🔥 Si se apaga el switch principal, apaga todos los demás
+                                if (!it) {
+                                    viewModel.updateBreakfastEnabled(false)
+                                    viewModel.updateLunchEnabled(false)
+                                    viewModel.updateSnackEnabled(false)
+                                    viewModel.updatePlayEnabled(false)
+                                }
+                            }
                         )
                     }
 
@@ -160,9 +174,10 @@ fun UserSettingsScreen(
                             title = "Desayuno",
                             subtitle = "Te recordaremos escribir qué desayunaste",
                             time = settings.breakfastTime,
-                            enabled = settings.breakfastEnabled,
+                            enabled = settings.breakfastEnabled && settings.enabled, // 🔥 Depende del switch principal
                             onEnabledChange = { viewModel.updateBreakfastEnabled(it) },
-                            onTimeClick = { showTimePickerFor = "breakfast" }
+                            onTimeClick = { showTimePickerFor = "breakfast" },
+                            isDisabled = !settings.enabled // 🔥 Deshabilita si el principal está OFF
                         )
                     }
 
@@ -173,9 +188,10 @@ fun UserSettingsScreen(
                             title = "Almuerzo",
                             subtitle = "Te recordaremos escribir qué almorzaste",
                             time = settings.lunchTime,
-                            enabled = settings.lunchEnabled,
+                            enabled = settings.lunchEnabled && settings.enabled,
                             onEnabledChange = { viewModel.updateLunchEnabled(it) },
-                            onTimeClick = { showTimePickerFor = "lunch" }
+                            onTimeClick = { showTimePickerFor = "lunch" },
+                            isDisabled = !settings.enabled
                         )
                     }
 
@@ -186,9 +202,10 @@ fun UserSettingsScreen(
                             title = "Merienda",
                             subtitle = "Te recordaremos escribir qué cenaste",
                             time = settings.snackTime,
-                            enabled = settings.snackEnabled,
+                            enabled = settings.snackEnabled && settings.enabled,
                             onEnabledChange = { viewModel.updateSnackEnabled(it) },
-                            onTimeClick = { showTimePickerFor = "snack" }
+                            onTimeClick = { showTimePickerFor = "snack" },
+                            isDisabled = !settings.enabled
                         )
                     }
 
@@ -207,9 +224,10 @@ fun UserSettingsScreen(
                             title = "Hora de Jugar",
                             subtitle = "Te recordaremos jugar y aprender",
                             time = settings.playTime,
-                            enabled = settings.playEnabled,
+                            enabled = settings.playEnabled && settings.enabled,
                             onEnabledChange = { viewModel.updatePlayEnabled(it) },
-                            onTimeClick = { showTimePickerFor = "play" }
+                            onTimeClick = { showTimePickerFor = "play" },
+                            isDisabled = !settings.enabled
                         )
                     }
 
@@ -387,11 +405,14 @@ private fun NotificationCard(
     time: String,
     enabled: Boolean,
     onEnabledChange: (Boolean) -> Unit,
-    onTimeClick: () -> Unit
+    onTimeClick: () -> Unit,
+    isDisabled: Boolean = false // 🔥 Nuevo parámetro
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDisabled) Color(0xFFF5F5F5) else Color.White
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -404,13 +425,18 @@ private fun NotificationCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = emoji, fontSize = 24.sp)
+                    Text(
+                        text = emoji,
+                        fontSize = 24.sp,
+                        color = if (isDisabled) Color.Gray.copy(alpha = 0.5f) else Color.Unspecified
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = title,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDisabled) Color.Gray else Color.Unspecified
                         )
                         Text(
                             text = subtitle,
@@ -422,13 +448,16 @@ private fun NotificationCard(
                 Switch(
                     checked = enabled,
                     onCheckedChange = onEnabledChange,
+                    enabled = !isDisabled, // 🔥 Deshabilita el switch
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF4CAF50)
+                        checkedThumbColor = Color(0xFF4CAF50),
+                        disabledCheckedThumbColor = Color.Gray,
+                        disabledUncheckedThumbColor = Color.Gray
                     )
                 )
             }
 
-            if (enabled) {
+            if (enabled && !isDisabled) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Divider()
                 Spacer(modifier = Modifier.height(12.dp))

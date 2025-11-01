@@ -25,6 +25,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+// 👇 Importa esto (accompanist)
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+
 class MainActivity : ComponentActivity() {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -54,6 +60,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TesisTheme {
+                // 👇 PASO 1: Control del color de las barras del sistema
+                val systemUiController = rememberSystemUiController()
+                val useDarkIcons = true // true si tu fondo es claro
+
+                SideEffect {
+                    // Barra superior (status bar)
+                    systemUiController.setStatusBarColor(
+                        color = Color(0xFFF1A7A7), // tu color personalizado
+                        darkIcons = useDarkIcons
+                    )
+                }
+
+                // 👇 Tu UI principal
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
