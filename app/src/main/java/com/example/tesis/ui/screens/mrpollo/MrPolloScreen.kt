@@ -117,21 +117,18 @@ fun MrPolloScreen(navController: NavController) {
     ) {
         // ✅ Scaffold DENTRO del drawer
         Scaffold(
+            contentWindowInsets = WindowInsets.systemBars,
             bottomBar = {
                 BottomNavBar(
                     currentRoute = "mr_pollo",
                     navController = navController
                 )
-            },
-            contentWindowInsets = WindowInsets(0)
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = 0.dp,
-                        bottom = innerPadding.calculateBottomPadding()
-                    )
+                    .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(

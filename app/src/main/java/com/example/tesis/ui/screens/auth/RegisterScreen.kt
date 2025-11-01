@@ -130,6 +130,7 @@ fun RegisterScreen(navController: NavController) {
                     )
                 )
             )
+            .windowInsetsPadding(WindowInsets.systemBars)
     ) {
         if (showCalendar) {
             CalendarPicker(

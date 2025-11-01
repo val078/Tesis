@@ -121,15 +121,14 @@ fun GamesScreen(navController: NavController) {
             )
         }
     ) {
-        // ✅ Scaffold DENTRO del drawer
         Scaffold(
+            contentWindowInsets = WindowInsets.systemBars,
             bottomBar = {
                 BottomNavBar(
                     currentRoute = "games",
                     navController = navController
                 )
             },
-            contentWindowInsets = WindowInsets(0),
             snackbarHost = {
                 SnackbarHost(
                     hostState = remember { SnackbarHostState() }
@@ -139,12 +138,7 @@ fun GamesScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = 0.dp,
-                        bottom = innerPadding.calculateBottomPadding(),
-                        start = 0.dp,
-                        end = 0.dp
-                    )
+                    .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(

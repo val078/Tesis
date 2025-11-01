@@ -157,23 +157,18 @@ fun HomeScreen(
         }
     ) {
         Scaffold(
+            contentWindowInsets = WindowInsets.systemBars,
             bottomBar = {
                 BottomNavBar(
                     currentRoute = "home",
                     navController = navController
                 )
-            },
-            contentWindowInsets = WindowInsets(0)
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = 0.dp,
-                        bottom = innerPadding.calculateBottomPadding(),
-                        start = 0.dp,
-                        end = 0.dp
-                    )
+                    .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(

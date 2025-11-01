@@ -32,7 +32,6 @@ fun AdminHomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -42,6 +41,8 @@ fun AdminHomeScreen(
                     )
                 )
             )
+            .windowInsetsPadding(WindowInsets.systemBars)
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         // Encabezado

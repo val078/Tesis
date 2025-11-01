@@ -109,7 +109,7 @@ fun LoginScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0)
+        contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Box(
             modifier = Modifier

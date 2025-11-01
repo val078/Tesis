@@ -37,7 +37,8 @@ fun DrawerMenu(
         modifier = Modifier
             .fillMaxHeight()
             .width(315.dp)
-            .background(Color.White) // ✅ Ahora igual que los ítems
+            .background(Color.White)
+            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical))
     ) {
         DrawerContent(
             currentUser = currentUser,

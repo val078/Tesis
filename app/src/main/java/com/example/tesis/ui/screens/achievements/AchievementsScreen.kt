@@ -141,20 +141,19 @@ fun AchievementsScreen(navController: NavController) {
             )
         }
     ) {
-        // ✅ Scaffold DENTRO del drawer
         Scaffold(
+            contentWindowInsets = WindowInsets.systemBars,
             bottomBar = {
                 BottomNavBar(
                     currentRoute = "achievements",
                     navController = navController
                 )
-            },
-            contentWindowInsets = WindowInsets(0)
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = innerPadding.calculateBottomPadding())
+                    .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(

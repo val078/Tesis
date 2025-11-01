@@ -33,7 +33,7 @@ fun ForgotPasswordScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0)
+        contentWindowInsets = WindowInsets.systemBars
     ) { innerPadding ->
         Box(
             modifier = Modifier
