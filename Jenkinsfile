@@ -31,7 +31,10 @@ pipeline {
             }
             steps {
                 echo 'Instalando Android SDK y compilando APK...'
-                withCredentials([file(credentialsId: 'firebase-google-services-json', variable: 'GOOGLE_SERVICES_FILE')]) {
+                withCredentials([
+                    file(credentialsId: 'firebase-google-services-json', variable: 'GOOGLE_SERVICES_FILE'),
+                    string(credentialsId: 'gemini-api-key', variable: 'GEMINI_API_KEY')  // NUEVO
+                ]) {
                     sh '''
                         set -e
                         
@@ -54,7 +57,10 @@ pipeline {
                             "platform-tools" "platforms;android-35" "build-tools;35.0.0" > /dev/null
         
                         echo "sdk.dir=$ANDROID_SDK_ROOT" > $WORKSPACE/local.properties
-
+                        
+                        # NUEVO: Agregar la API key al local.properties
+                        echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> $WORKSPACE/local.properties
+        
                         echo "Copiando google-services.json..."
                         cp $GOOGLE_SERVICES_FILE $WORKSPACE/app/google-services.json
                         echo "Archivo copiado en: app/google-services.json"
