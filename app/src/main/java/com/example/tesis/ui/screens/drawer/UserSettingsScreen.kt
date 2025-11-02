@@ -36,19 +36,21 @@ fun UserSettingsScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     var isInitialLoad by remember { mutableStateOf(true) }
+    var initialSettings by remember { mutableStateOf(settings) }
+    val hasChanges = settings != initialSettings
 
-    val hasChanges = remember(settings) {
-        true
-    }
-
-    LaunchedEffect(Unit) {
-        isInitialLoad = false
+    LaunchedEffect(settings) {
+        if (isInitialLoad && !isLoading) {
+            isInitialLoad = false
+        }
     }
 
     LaunchedEffect(saveSuccess) {
-        if (saveSuccess && !isInitialLoad) {
+        if (!isInitialLoad && saveSuccess) {
             showSaveDialog = true
             viewModel.resetSaveSuccess()
+        } else if (isInitialLoad && saveSuccess) {
+            viewModel.resetSaveSuccess() // ⚡ ignora guardado inicial
         }
     }
 
@@ -260,7 +262,10 @@ fun UserSettingsScreen(
                         .padding(bottom = 24.dp)
                 ) {
                     Button(
-                        onClick = { viewModel.saveSettings(settings) },
+                        onClick = {
+                            viewModel.saveSettings(settings)
+                            initialSettings = settings // ✅ Actualiza referencia al guardar
+                        },
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
                             .height(56.dp),

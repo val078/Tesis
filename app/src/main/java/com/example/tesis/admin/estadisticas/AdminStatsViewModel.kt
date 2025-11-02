@@ -80,6 +80,11 @@ class AdminStatsViewModel : ViewModel() {
                 }
 
                 val nonAdminUsers = users.filter { it.role != "admin" }
+                val nonAdminUserIds = nonAdminUsers.map { it.userId }.toSet()
+
+                Log.d("AdminStatsViewModel", "👥 Total usuarios: ${users.size}")
+                Log.d("AdminStatsViewModel", "👥 Usuarios no-admin: ${nonAdminUsers.size}")
+                Log.d("AdminStatsViewModel", "👥 IDs no-admin: $nonAdminUserIds")
 
                 // Filtrar usuarios nuevos en el período
                 val newUsersInPeriod = if (startDate != null) {
@@ -100,7 +105,23 @@ class AdminStatsViewModel : ViewModel() {
                     firestore.collection("diaryEntries")
                 }
                 val diarySnapshot = diaryQuery.get().await()
-                val diaryEntriesInPeriod = diarySnapshot.size()
+
+                // ⭐ LOGS DE DEBUGGING
+                Log.d("AdminStatsViewModel", "📝 Total docs en query: ${diarySnapshot.documents.size}")
+                diarySnapshot.documents.forEachIndexed { index, doc ->
+                    val userId = doc.getString("userId")
+                    val timestamp = doc.getTimestamp("timestamp")
+                    val isNonAdmin = userId in nonAdminUserIds
+                    Log.d("AdminStatsViewModel", "   [$index] userId: $userId, timestamp: ${timestamp?.toDate()}, isNonAdmin: $isNonAdmin")
+                }
+
+                // ⭐ FILTRAR solo diarios de usuarios no-admin
+                val diaryEntriesInPeriod = diarySnapshot.documents.count { doc ->
+                    val userId = doc.getString("userId")
+                    userId in nonAdminUserIds
+                }
+
+                Log.d("AdminStatsViewModel", "📝 Diarios después del filtro: $diaryEntriesInPeriod")
 
                 // Cargar comidas
                 val foodQuery = if (startDate != null) {
@@ -111,7 +132,12 @@ class AdminStatsViewModel : ViewModel() {
                     firestore.collectionGroup("foodHistory")
                 }
                 val foodHistorySnapshot = foodQuery.get().await()
-                val mealsInPeriod = foodHistorySnapshot.size()
+
+                // ⭐ FILTRAR solo comidas de usuarios no-admin
+                val mealsInPeriod = foodHistorySnapshot.documents.count { doc ->
+                    val userId = doc.reference.parent.parent?.id
+                    userId in nonAdminUserIds
+                }
 
                 // ⭐ Cargar juegos jugados
                 val gamesQuery = if (startDate != null) {
@@ -122,7 +148,25 @@ class AdminStatsViewModel : ViewModel() {
                     firestore.collectionGroup("gameResults")
                 }
                 val gamesSnapshot = gamesQuery.get().await()
-                val gamesPlayedInPeriod = gamesSnapshot.size()
+
+                // ⭐ LOGS DE DEBUGGING PARA JUEGOS
+                Log.d("AdminStatsViewModel", "🎮 Total docs de juegos en query: ${gamesSnapshot.documents.size}")
+                gamesSnapshot.documents.forEachIndexed { index, doc ->
+                    val userId = doc.reference.parent.parent?.id
+                    val timestamp = doc.getTimestamp("date")
+                    val isNonAdmin = userId in nonAdminUserIds
+                    Log.d("AdminStatsViewModel", "   [$index] userId: $userId, date: ${timestamp?.toDate()}, isNonAdmin: $isNonAdmin")
+                }
+
+                // ⭐ FILTRAR solo juegos de usuarios no-admin
+                val gamesPlayedInPeriod = gamesSnapshot.documents.count { doc ->
+                    val userId = doc.reference.parent.parent?.id
+                    userId in nonAdminUserIds
+                }
+
+                Log.d("AdminStatsViewModel", "🎮 Juegos después del filtro: $gamesPlayedInPeriod")
+                Log.d("AdminStatsViewModel", "📝 Diarios filtrados: $diaryEntriesInPeriod")
+                Log.d("AdminStatsViewModel", "🍽️ Comidas filtradas: $mealsInPeriod")
 
                 // Calcular usuarios más activos
                 val topUsers = calculateTopUsers(
@@ -132,8 +176,12 @@ class AdminStatsViewModel : ViewModel() {
                     gameDocs = gamesSnapshot.documents
                 )
 
-                // Actividad por día (últimos 7 días)
-                val activityByDay = calculateActivityByDay(diarySnapshot.documents)
+                // Actividad por día (últimos 7 días) - también filtrar
+                val activityByDay = calculateActivityByDay(
+                    diarySnapshot.documents.filter { doc ->
+                        doc.getString("userId") in nonAdminUserIds
+                    }
+                )
 
                 // Estadísticas generales
                 val totalUsers = nonAdminUsers.size
@@ -142,8 +190,16 @@ class AdminStatsViewModel : ViewModel() {
                 val childUsers = nonAdminUsers.count { it.isChild() }
                 val adultUsers = nonAdminUsers.count { !it.isChild() }
 
-                val totalDiaryEntries = firestore.collection("diaryEntries").get().await().size()
-                val totalMeals = firestore.collectionGroup("foodHistory").get().await().size()
+                // ⭐ Para totales generales también filtrar
+                val totalDiarySnapshot = firestore.collection("diaryEntries").get().await()
+                val totalDiaryEntries = totalDiarySnapshot.documents.count { doc ->
+                    doc.getString("userId") in nonAdminUserIds
+                }
+
+                val totalFoodSnapshot = firestore.collectionGroup("foodHistory").get().await()
+                val totalMeals = totalFoodSnapshot.documents.count { doc ->
+                    doc.reference.parent.parent?.id in nonAdminUserIds
+                }
 
                 val averageMeals = if (totalUsers > 0) {
                     totalMeals.toDouble() / totalUsers
@@ -198,10 +254,13 @@ class AdminStatsViewModel : ViewModel() {
 
     private fun getDateRange(period: StatsPeriod): Pair<Timestamp?, Timestamp> {
         val calendar = Calendar.getInstance()
+
+        // Fin del período es AHORA
         val endDate = Timestamp.now()
 
         val startDate = when (period) {
             StatsPeriod.TODAY -> {
+                // Inicio del día de hoy (00:00:00)
                 calendar.set(Calendar.HOUR_OF_DAY, 0)
                 calendar.set(Calendar.MINUTE, 0)
                 calendar.set(Calendar.SECOND, 0)
@@ -209,15 +268,30 @@ class AdminStatsViewModel : ViewModel() {
                 Timestamp(calendar.time)
             }
             StatsPeriod.WEEK -> {
+                // Hace 7 días desde ahora
+                calendar.time = Date()
                 calendar.add(Calendar.DAY_OF_YEAR, -7)
+                calendar.set(Calendar.HOUR_OF_DAY, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
                 Timestamp(calendar.time)
             }
             StatsPeriod.MONTH -> {
+                // Hace 1 mes desde ahora
+                calendar.time = Date()
                 calendar.add(Calendar.MONTH, -1)
+                calendar.set(Calendar.HOUR_OF_DAY, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
                 Timestamp(calendar.time)
             }
             StatsPeriod.ALL_TIME -> null
         }
+
+        Log.d("AdminStatsViewModel", "📅 StartDate: ${startDate?.toDate()}")
+        Log.d("AdminStatsViewModel", "📅 EndDate: ${endDate.toDate()}")
 
         return Pair(startDate, endDate)
     }

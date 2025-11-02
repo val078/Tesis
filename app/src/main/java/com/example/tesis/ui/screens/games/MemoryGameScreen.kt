@@ -1224,7 +1224,6 @@ private fun CardBack(cardSize: Dp = 80.dp) {
 private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 80.dp) {
     val isFoodCard = card.emoji != "💊"
 
-    // Tamaños dinámicos basados en el tamaño de la carta
     val emojiSize = when (cardSize) {
         60.dp -> 20.sp
         70.dp -> 24.sp
@@ -1270,101 +1269,94 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .shadow(6.dp, RoundedCornerShape(12.dp))  // Sombra reducida
+            .shadow(6.dp, RoundedCornerShape(12.dp))
             .background(backgroundColor, RoundedCornerShape(12.dp))
-            .border(
-                width = 2.dp,  // Borde más delgado
-                color = borderColor,
-                shape = RoundedCornerShape(12.dp)
-            ),
-        contentAlignment = Alignment.Center
+            .border(2.dp, borderColor, RoundedCornerShape(12.dp))
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(6.dp)  // Padding reducido
-        ) {
-            if (isFoodCard) {
-                Text(
-                    text = card.emoji,
-                    fontSize = emojiSize
-                )
-            } else {
+        // 🧩 Contenido principal
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(6.dp)
+            ) {
+                if (isFoodCard) {
+                    Text(
+                        text = card.emoji,
+                        fontSize = emojiSize
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(benefitBoxSize)
+                            .background(Color(0xFFE3F2FD), CircleShape)
+                            .border(1.5.dp, Color(0xFF90CAF9), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = card.emoji,
+                            fontSize = emojiSize.times(0.7f)
+                        )
+                    }
+                }
+
+                if (card.label.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = if (isFoodCard) Color(0xFFFFF3E0) else Color(0xFFE3F2FD),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                            .padding(vertical = 3.dp, horizontal = 4.dp)
+                    ) {
+                        Text(
+                            text = card.label,
+                            fontSize = labelFontSize,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            lineHeight = labelFontSize.times(1.1f),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = if (isFoodCard) "Alimento" else "Nutriente",
+                        fontSize = typeFontSize,
+                        fontWeight = FontWeight.Medium,
+                        color = textColor.copy(alpha = 0.7f)
+                    )
+                }
+            }
+
+            // ✅ Check verde correctamente alineado
+            if (isMatched) {
                 Box(
                     modifier = Modifier
-                        .size(benefitBoxSize)
-                        .background(
-                            color = Color(0xFFE3F2FD),
-                            shape = CircleShape
-                        )
-                        .border(
-                            width = 1.5.dp,  // Borde reducido
-                            color = Color(0xFF90CAF9),
-                            shape = CircleShape
-                        ),
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-4).dp, y = (-4).dp)
+                        .size(18.dp)
+                        .background(Color(0xFF4CAF50), CircleShape)
+                        .border(1.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = card.emoji,
-                        fontSize = emojiSize.times(0.7f)  // Emoji más pequeño para beneficios
+                        text = "✓",
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-            }
-
-            if (card.label.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))  // Espacio reducido
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = if (isFoodCard) Color(0xFFFFF3E0) else Color(0xFFE3F2FD),
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                        .padding(vertical = 3.dp, horizontal = 4.dp)  // Padding reducido
-                ) {
-                    Text(
-                        text = card.label,
-                        fontSize = labelFontSize,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        lineHeight = labelFontSize.times(1.1f),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = if (isFoodCard) "Alimento" else "Nutriente",
-                    fontSize = typeFontSize,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor.copy(alpha = 0.7f)
-                )
-            }
-        }
-
-        if (isMatched) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(y = (-2).dp, x = (-2).dp)
-                    .padding(2.dp)
-                    .size(16.dp)
-                    .background(Color(0xFF4CAF50), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "✓",
-                    fontSize = 10.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
     }
 }
-
 @Composable
 fun MemoryGameReflectionScreen(
     score: Int,

@@ -234,4 +234,16 @@ class AuthRepository {
         auth.signOut()
         Log.d(TAG, "✅ Sesión cerrada")
     }
+
+    suspend fun changePassword(newPassword: String): Boolean {
+        return try {
+            val user = auth.currentUser
+            user?.updatePassword(newPassword)?.await()
+            Log.d(TAG, "✅ Contraseña actualizada correctamente")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error al cambiar contraseña", e)
+            false
+        }
+    }
 }

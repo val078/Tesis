@@ -37,7 +37,6 @@ fun AdminFoodHistoryScreen(
     val entries by viewModel.entries.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // ✅ Agrupar entradas por fecha fuera del LazyColumn
     val entriesByDate = remember(entries) {
         entries
             .sortedByDescending { it.timestamp.toDate().time }
@@ -47,7 +46,6 @@ fun AdminFoodHistoryScreen(
             }
     }
 
-    // ✅ Estado para confirmación de eliminación
     var entryToDelete by remember { mutableStateOf<DiaryEntry?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -55,7 +53,6 @@ fun AdminFoodHistoryScreen(
         viewModel.loadEntries(userId)
     }
 
-    // ✅ Diálogo de confirmación
     if (showDeleteDialog && entryToDelete != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -86,6 +83,7 @@ fun AdminFoodHistoryScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.systemBars,  // AGREGADO
         topBar = {
             TopAppBar(
                 title = {
@@ -113,7 +111,7 @@ fun AdminFoodHistoryScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding())
+                .padding(innerPadding)  // CAMBIADO: Usa el padding completo
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -131,7 +129,6 @@ fun AdminFoodHistoryScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                // ✅ Resumen
                 item {
                     HistorySummaryCard(
                         totalEntries = entries.size,
@@ -150,7 +147,6 @@ fun AdminFoodHistoryScreen(
                         EmptyState()
                     }
                 } else {
-                    // ✅ Mostrar entradas agrupadas por fecha
                     entriesByDate.forEach { (date, entries) ->
                         item {
                             DateHeader(date = date, entriesCount = entries.size)

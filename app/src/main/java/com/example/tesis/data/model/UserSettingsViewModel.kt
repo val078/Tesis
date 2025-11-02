@@ -21,12 +21,15 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
     private val auth = FirebaseAuth.getInstance()
     private val context: Context = application.applicationContext
 
+    // Estado de configuración
     private val _notificationSettings = MutableStateFlow(NotificationSettings())
     val notificationSettings: StateFlow<NotificationSettings> = _notificationSettings
 
+    // Estado de carga
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    // Estado de éxito al guardar
     private val _saveSuccess = MutableStateFlow(false)
     val saveSuccess: StateFlow<Boolean> = _saveSuccess
 
@@ -34,6 +37,7 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
         loadSettings()
     }
 
+    // 🔹 Carga la configuración desde Firestore
     fun loadSettings() {
         viewModelScope.launch {
             try {
@@ -50,15 +54,16 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
                     .await()
 
                 if (doc.exists()) {
+                    // ✅ Configuración existente
                     val settings = doc.toObject(NotificationSettings::class.java)
                         ?: NotificationSettings()
                     _notificationSettings.value = settings
                     Log.d("UserSettingsVM", "✅ Configuración cargada: $settings")
                 } else {
-                    // Crear configuración por defecto
+                    // 🆕 Crear configuración por defecto sin mostrar popup
                     val defaultSettings = NotificationSettings()
                     _notificationSettings.value = defaultSettings
-                    saveSettings(defaultSettings)
+                    saveSettings(defaultSettings, silent = true) // 🧩 guardado inicial silencioso
                     Log.d("UserSettingsVM", "✅ Configuración por defecto creada")
                 }
 
@@ -70,7 +75,9 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun saveSettings(settings: NotificationSettings) {
+    // 💾 Guarda la configuración en Firestore
+    // Parámetro `silent` evita que se dispare el popup en guardados automáticos
+    fun saveSettings(settings: NotificationSettings, silent: Boolean = false) {
         viewModelScope.launch {
             try {
                 Log.d("UserSettingsVM", "💾 Guardando configuración...")
@@ -90,11 +97,17 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
 
                 _notificationSettings.value = updatedSettings
 
-                // ⭐ Reprogramar notificaciones
+                // 🔔 Reprogramar notificaciones locales
                 NotificationScheduler.scheduleAllNotifications(context, updatedSettings)
 
-                _saveSuccess.value = true
-                Log.d("UserSettingsVM", "✅ Configuración guardada y notificaciones reprogramadas")
+                if (!silent) {
+                    _saveSuccess.value = true
+                }
+
+                Log.d(
+                    "UserSettingsVM",
+                    "✅ Configuración guardada${if (silent) " (modo silencioso)" else ""}"
+                )
 
             } catch (e: Exception) {
                 Log.e("UserSettingsVM", "❌ Error guardando configuración", e)
@@ -102,6 +115,7 @@ class UserSettingsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    // 🔄 Métodos para actualizar campos individuales
     fun updateBreakfastEnabled(enabled: Boolean) {
         _notificationSettings.value = _notificationSettings.value.copy(breakfastEnabled = enabled)
     }

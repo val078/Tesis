@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tesis.data.model.AuthResult
 import com.example.tesis.data.model.User
 import com.example.tesis.data.repository.AuthRepository
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -154,6 +155,46 @@ class AuthViewModel : ViewModel() {
             auth.sendPasswordResetEmail(email).await()
         } catch (e: Exception) {
             throw Exception("No se pudo enviar el correo de recuperación. Verifica que el correo esté registrado.")
+        }
+    }
+
+    fun changePasswordWithReauth(
+        currentPassword: String,
+        newPassword: String,
+        callback: (Boolean, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val user = auth.currentUser
+                if (user == null || user.email == null) {
+                    callback(false, "Usuario no autenticado")
+                    return@launch
+                }
+
+                val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
+
+                user.reauthenticate(credential).await()
+                Log.d("AuthViewModel", "Reautenticación exitosa")
+
+                // Paso 2: Cambiar la contraseña
+                user.updatePassword(newPassword).await()
+                Log.d("AuthViewModel", "Contraseña actualizada correctamente")
+
+                callback(true, null)
+
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "Error al cambiar contraseña", e)
+
+                val errorMessage = when (e) {
+                    is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException ->
+                        "La contraseña actual es incorrecta"
+                    is com.google.firebase.auth.FirebaseAuthWeakPasswordException ->
+                        "La nueva contraseña es demasiado débil"
+                    else -> "Error: ${e.localizedMessage}"
+                }
+
+                callback(false, errorMessage)
+            }
         }
     }
 }

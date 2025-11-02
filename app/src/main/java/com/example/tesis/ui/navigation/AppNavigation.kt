@@ -219,6 +219,11 @@ fun AppNavigation(
         composable("admin_reports") {
             AdminReportsScreen(navController = navController)
         }
-
+        composable("change_password") {
+            ChangePasswordScreen(
+                navController = navController,
+                authViewModel = authViewModel // o viewModel() si no usas Hilt
+            )
+        }
     }
 }
