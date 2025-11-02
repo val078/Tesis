@@ -1348,14 +1348,15 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(3.dp)  // Padding reducido
-                    .size(16.dp)    // Tamaño reducido
+                    .offset(y = (-2).dp, x = (-2).dp)
+                    .padding(2.dp)
+                    .size(16.dp)
                     .background(Color(0xFF4CAF50), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "✓",
-                    fontSize = 10.sp,  // Tamaño reducido
+                    fontSize = 10.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )

@@ -84,7 +84,6 @@ fun AdminStatsScreen(
                     CircularProgressIndicator(color = Color(0xFFE67E22))
                 }
             } else {
-                // ⭐⭐⭐ REEMPLAZA DESDE AQUÍ ⭐⭐⭐
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
@@ -95,7 +94,6 @@ fun AdminStatsScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // ⭐⭐⭐ HASTA AQUÍ ⭐⭐⭐
                     item {
                         PeriodSelector(
                             selectedPeriod = selectedPeriod,
@@ -186,7 +184,9 @@ private fun PeriodButton(
 
     Button(
         onClick = onClick,
-        modifier = modifier.height(56.dp), // ⭐ Cambio: de 48dp a 56dp
+        modifier = modifier
+            .wrapContentHeight() // ✅ deja que crezca si necesita más espacio
+            .defaultMinSize(minHeight = 56.dp), // ✅ mantiene altura mínima visual
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor
@@ -194,24 +194,23 @@ private fun PeriodButton(
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = if (isSelected) 4.dp else 0.dp
         ),
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp) // ⭐ Agregar padding interno
+        contentPadding = PaddingValues(vertical = 4.dp, horizontal = 4.dp) // ✅ padding más pequeño
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight() // ⭐ Agregar esto
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = period.emoji,
-                fontSize = 18.sp // ⭐ Aumentar un poco el emoji si quieres
+                fontSize = 20.sp,
+                modifier = Modifier.padding(bottom = 2.dp)
             )
-            Spacer(modifier = Modifier.height(2.dp)) // ⭐ Espaciado entre emoji y texto
             Text(
                 text = period.label,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = textColor,
-                maxLines = 1 // ⭐ Asegurar que sea una sola línea
+                textAlign = TextAlign.Center
             )
         }
     }

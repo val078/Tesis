@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,37 +59,6 @@ fun WritingScreen(
             .fillMaxSize()
             .background(backgroundGradient)
     ) {
-        // Header con X
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .statusBarsPadding(),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(20.dp),
-                color = Color.White.copy(alpha = 0.6f),
-                onClick = {
-                    navController.navigate("diary") {
-                        popUpTo("diary") { inclusive = true }
-                    }
-                }
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Close,
-                        contentDescription = "Volver al calendario",
-                        tint = Color(0xFF3F2E1B).copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-        }
 
         // Contenido principal
         Column(
@@ -308,7 +278,8 @@ private fun EnhancedRatingButton(
 ) {
     Card(
         modifier = modifier
-            .height(72.dp)
+            .wrapContentHeight()
+            .defaultMinSize(minHeight = 72.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -326,14 +297,14 @@ private fun EnhancedRatingButton(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 10.dp),
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = emoji,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
@@ -341,7 +312,8 @@ private fun EnhancedRatingButton(
                 fontSize = 15.sp,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                 color = if (isSelected) PrimaryOrange else Color(0xFF666666),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Visible
             )
         }
     }

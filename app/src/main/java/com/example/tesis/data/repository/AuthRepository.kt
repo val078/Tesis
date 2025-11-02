@@ -106,13 +106,50 @@ class AuthRepository {
         return try {
             Log.d(TAG, "=== loginUser INICIADO ===")
 
+            val firestore = FirebaseFirestore.getInstance()
+            val configDoc = firestore.collection("config").document("app").get().await()
+            val config = configDoc.data ?: emptyMap()
+            val maintenanceMode = config["maintenanceMode"] as? Boolean ?: false
+            val maintenanceMessage = config["maintenanceMessage"] as? String
+                ?: "Estamos mejorando la app. Vuelve pronto 🚧"
+
+            // Verificar mantenimiento antes de login
+            if (maintenanceMode) {
+                val adminEmail = "admin@gmail.com"
+                val isEmail = emailOrUsername.contains("@")
+                val emailToUse = if (isEmail) emailOrUsername else {
+                    val querySnapshot = firestore.collection("users")
+                        .whereEqualTo("name", emailOrUsername)
+                        .limit(1)
+                        .get()
+                        .await()
+
+                    if (querySnapshot.isEmpty) {
+                        return AuthResult(
+                            success = false,
+                            message = "Usuario '$emailOrUsername' no encontrado"
+                        )
+                    }
+
+                    querySnapshot.documents.first().getString("email") ?: ""
+                }
+
+                if (emailToUse.lowercase() != adminEmail) {
+                    Log.w(TAG, "🚫 Bloqueado por mantenimiento: $emailToUse")
+                    return AuthResult(
+                        success = false,
+                        message = maintenanceMessage
+                    )
+                }
+            }
+
+            // 🔹 Resto del login normal
             val isEmail = emailOrUsername.contains("@")
             val emailToUse: String
 
             if (isEmail) {
                 emailToUse = emailOrUsername
             } else {
-                // Buscar email por username
                 val querySnapshot = firestore.collection("users")
                     .whereEqualTo("name", emailOrUsername)
                     .limit(1)
@@ -130,26 +167,18 @@ class AuthRepository {
             }
 
             val authResult = auth.signInWithEmailAndPassword(emailToUse, password).await()
-
             if (authResult.user == null) {
                 return AuthResult(success = false, message = "Error al iniciar sesión")
             }
 
             val user = getCurrentUser()
-
             if (user == null) {
-                return AuthResult(
-                    success = true,
-                    message = "Login exitoso pero sin datos de perfil"
-                )
+                return AuthResult(success = true, message = "Login exitoso sin datos de perfil")
             }
 
             if (!user.active) {
                 auth.signOut()
-                return AuthResult(
-                    success = false,
-                    message = "Cuenta desactivada por el administrador"
-                )
+                return AuthResult(success = false, message = "Cuenta desactivada por el administrador")
             }
 
             AuthResult(success = true, message = "¡Bienvenido ${user.name}!", user = user)

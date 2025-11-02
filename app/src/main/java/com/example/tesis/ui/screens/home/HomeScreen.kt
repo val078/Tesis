@@ -680,7 +680,8 @@ private fun AchievementPlaceholder() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
+            .wrapContentHeight()
+            .defaultMinSize(minHeight = 100.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFF5E6)
@@ -688,12 +689,13 @@ private fun AchievementPlaceholder() {
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "🎯",
@@ -704,7 +706,8 @@ private fun AchievementPlaceholder() {
                     text = "¡Completa juegos para desbloquear logros!",
                     fontSize = 13.sp,
                     color = TextGray,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    lineHeight = 16.sp // ✅ agrega aire entre líneas
                 )
             }
         }

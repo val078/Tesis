@@ -204,9 +204,6 @@ fun StatsScreen(navController: NavController) {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// FUNCIONES DE FILTRADO
-// ═══════════════════════════════════════════════════════════════
 
 private fun filterResultsByPeriod(
     allResults: List<GameResult>,
@@ -279,10 +276,6 @@ fun getGamesPlayedToday(allResults: List<GameResult>): Set<String> {
         .map { it.gameId }
         .toSet()
 }
-
-// ═══════════════════════════════════════════════════════════════
-// COMPONENTES UI
-// ═══════════════════════════════════════════════════════════════
 
 @Composable
 private fun StatsHeader(
@@ -393,7 +386,8 @@ private fun PeriodButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .height(52.dp), // 🔥 Aumentado de 48dp a 52dp
+            .wrapContentHeight()
+            .defaultMinSize(minHeight = 52.dp),
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor
@@ -401,24 +395,22 @@ private fun PeriodButton(
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = if (isSelected) 4.dp else 0.dp
         ),
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp) // 🔥 Padding ajustado
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight() // 🔥 Asegura que use toda la altura
         ) {
             Text(
                 text = period.emoji,
-                fontSize = 18.sp, // 🔥 Aumentado de 16sp
-                modifier = Modifier.padding(bottom = 2.dp) // 🔥 Pequeño espacio
+                fontSize = 18.sp,
+                modifier = Modifier.padding(bottom = 2.dp)
             )
             Text(
                 text = period.label,
-                fontSize = 10.sp, // 🔥 Reducido de 11sp para que quepa mejor
+                fontSize = 11.sp, // 🔥 un poquito más legible en pantallas reales
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = textColor,
-                maxLines = 1, // 🔥 Fuerza a una sola línea
                 textAlign = TextAlign.Center
             )
         }

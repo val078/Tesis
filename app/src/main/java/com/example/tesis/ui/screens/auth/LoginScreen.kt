@@ -145,31 +145,7 @@ fun LoginScreen(
                     onPasswordVisibilityToggle = { passwordVisible = !passwordVisible },
                     isLoading = isLoading,
                     onLoginClick = {
-                        // ⭐ NUEVO: Verificar mantenimiento antes de hacer login
-                        kotlinx.coroutines.GlobalScope.launch {
-                            val isMaintenanceMode = authViewModel.checkMaintenanceMode()
-
-                            if (isMaintenanceMode) {
-                                // ⭐ Intentar hacer login primero para verificar si es admin
-                                authViewModel.loginUser(emailOrUsername, password)
-
-                                // Esperar un poco a que se complete el login
-                                kotlinx.coroutines.delay(2000)
-
-                                val user = authViewModel.currentUser.value
-
-                                // Si NO es admin, cerrar sesión y mostrar mensaje
-                                if (user != null && user.role != "admin") {
-                                    authViewModel.logout()
-                                    maintenanceMessage = authViewModel.getMaintenanceMessage()
-                                    showMaintenanceDialog = true
-                                }
-                                // Si es admin, el LaunchedEffect lo redirigirá automáticamente
-                            } else {
-                                // Sin mantenimiento, login normal
-                                authViewModel.loginUser(emailOrUsername, password)
-                            }
-                        }
+                        authViewModel.loginUser(emailOrUsername, password)
                     },
                     onForgotPasswordClick = { navController.navigate("forgot_password") },
                     onRegisterClick = { navController.navigate("register") },
@@ -393,13 +369,18 @@ private fun LoginFormCard(
 
                 TextButton(
                     onClick = onForgotPasswordClick,
-                    modifier = Modifier.height(32.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     Text(
                         text = "¿Olvidaste tu contraseña?",
                         color = Color(0xFFFF6B35),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
