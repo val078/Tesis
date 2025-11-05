@@ -1,5 +1,5 @@
 // En EditProfileViewModel.kt
-package com.example.tesis.data.model
+package com.example.tesis.data.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tesis.admin.ia.AIRecommendationLog
 import com.example.tesis.data.model.User
-import com.example.tesis.ui.components.GameResult
-import com.example.tesis.ui.screens.achievements.AchievementData
+import com.example.tesis.data.model.GameResult
+import com.example.tesis.data.viewmodel.AchievementData
 import com.example.tesis.ui.screens.achievements.calculateAllAchievements // ⭐ Importar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

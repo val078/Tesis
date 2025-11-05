@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tesis.data.model.User
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.graphics.SolidColor
 

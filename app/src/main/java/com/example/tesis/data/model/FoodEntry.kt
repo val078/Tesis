@@ -1,4 +1,4 @@
-package com.example.tesis.ui.components
+package com.example.tesis.data.model
 
 data class FoodEntry(
     val date: String,

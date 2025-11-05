@@ -13,7 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import com.example.tesis.data.model.NotificationSettings
+import com.example.tesis.notifications.NotificationSettings
 import com.example.tesis.notifications.NotificationHelper
 import com.example.tesis.notifications.NotificationScheduler
 import com.example.tesis.ui.navigation.AppNavigation
@@ -28,7 +28,6 @@ import kotlinx.coroutines.tasks.await
 // 👇 Importa esto (accompanist)
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {

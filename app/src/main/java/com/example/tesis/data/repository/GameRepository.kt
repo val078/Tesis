@@ -2,7 +2,7 @@
 package com.example.tesis.data.repository
 
 import android.util.Log
-import com.example.tesis.ui.components.GameResult
+import com.example.tesis.data.model.GameResult
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

@@ -4,7 +4,6 @@ package com.example.tesis.notifications
 import android.content.Context
 import android.util.Log
 import androidx.work.*
-import com.example.tesis.data.model.NotificationSettings
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 

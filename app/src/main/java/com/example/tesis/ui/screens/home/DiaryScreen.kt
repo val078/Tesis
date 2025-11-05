@@ -28,14 +28,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.launch
 import com.example.tesis.ui.components.BottomNavBar
-import com.example.tesis.ui.components.FoodEntry
-import com.example.tesis.data.model.DiaryViewModel
+import com.example.tesis.data.model.FoodEntry
+import com.example.tesis.data.viewmodel.DiaryViewModel
 import com.example.tesis.ui.screens.auth.DrawerMenu
 import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.DarkOrange
 import com.example.tesis.ui.theme.ConchodeVino
 import com.example.tesis.ui.theme.TextGray
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import java.util.*
 
 @Composable

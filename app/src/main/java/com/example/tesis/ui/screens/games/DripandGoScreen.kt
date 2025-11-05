@@ -45,9 +45,9 @@ import com.example.tesis.ui.theme.TextGray
 import kotlinx.coroutines.delay
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tesis.R
-import com.example.tesis.data.model.GameProgressViewModel
-import com.example.tesis.viewmodel.AuthViewModel
-import com.example.tesis.ui.components.GameResult
+import com.example.tesis.data.viewmodel.GameProgressViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
+import com.example.tesis.data.model.GameResult
 import kotlin.math.roundToInt
 import com.example.tesis.utils.TutorialManager
 import androidx.compose.runtime.collectAsState

@@ -20,9 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.tesis.data.model.PolloState // ✅ AGREGADO
-import com.example.tesis.ui.screens.achievements.AchievementData
-import com.example.tesis.ui.screens.achievements.NextAchievementInfo
+import com.example.tesis.data.model.GameResult
+import com.example.tesis.data.viewmodel.PolloState // ✅ AGREGADO
+import com.example.tesis.data.viewmodel.AchievementData
+import com.example.tesis.data.viewmodel.NextAchievementInfo
 import com.example.tesis.ui.screens.achievements.calculateAllAchievements
 import com.example.tesis.ui.screens.stats.getGamesPlayedToday
 import com.example.tesis.ui.theme.ConchodeVino

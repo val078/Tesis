@@ -22,23 +22,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tesis.ui.components.BottomNavBar
-import com.example.tesis.data.model.GameProgressViewModel
-import com.example.tesis.data.model.MrPolloViewModel
+import com.example.tesis.data.viewmodel.GameProgressViewModel
+import com.example.tesis.data.viewmodel.MrPolloViewModel
 import com.example.tesis.ui.components.NextAchievementWidget
 import com.example.tesis.ui.screens.auth.DrawerMenu
 import com.example.tesis.ui.theme.ConchodeVino
 import com.example.tesis.ui.theme.DarkOrange
 import com.example.tesis.ui.theme.TextGray
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.animation.core.*
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
-import com.example.tesis.data.model.AIState
-import com.example.tesis.data.model.HomeViewModel // ✅ NUEVO IMPORT
-import com.example.tesis.data.model.DiaryViewModel
+import com.example.tesis.data.viewmodel.AIState
+import com.example.tesis.data.viewmodel.HomeViewModel // ✅ NUEVO IMPORT
+import com.example.tesis.data.viewmodel.DiaryViewModel
 import com.google.firebase.auth.FirebaseAuth // ✅ NUEVO IMPORT
 import kotlinx.coroutines.delay
 

@@ -16,17 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.tesis.R
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextFieldColors
 import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.DarkOrange
 import com.example.tesis.ui.theme.CoralRed
@@ -42,7 +39,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import com.example.tesis.ui.theme.LightOrange
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import androidx.compose.runtime.collectAsState
 import java.util.*
 import androidx.compose.ui.draw.alpha

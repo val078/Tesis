@@ -1,9 +1,9 @@
-package com.example.tesis.data.model
+package com.example.tesis.data.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tesis.ui.components.DiaryEntry
+import com.example.tesis.data.model.DiaryEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.example.tesis.ui.components.FoodEntry
+import com.example.tesis.data.model.FoodEntry
 import com.google.firebase.Timestamp
 
 class DiaryViewModel : ViewModel() {

@@ -1,11 +1,11 @@
 // ui/components/GameProgressViewModel.kt
-package com.example.tesis.data.model
+package com.example.tesis.data.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tesis.data.repository.GameRepository
-import com.example.tesis.ui.components.GameResult
+import com.example.tesis.data.model.GameResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

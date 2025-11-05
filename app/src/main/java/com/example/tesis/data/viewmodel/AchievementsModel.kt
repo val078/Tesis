@@ -1,5 +1,5 @@
-// ui/screens/achievements/AchievementsModels.kt
-package com.example.tesis.ui.screens.achievements
+// ui/screens/achievements/AchievementsModel.kt
+package com.example.tesis.data.viewmodel
 
 import androidx.compose.ui.graphics.Color
 

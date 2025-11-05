@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tesis.admin.ia.AIRecommendationLog
-import com.example.tesis.ui.screens.achievements.AchievementData
+import com.example.tesis.data.viewmodel.AchievementData
 import java.text.SimpleDateFormat
 import java.util.Locale
 

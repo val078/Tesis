@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.ConchodeVino
 import com.example.tesis.ui.theme.TextGray
-import com.example.tesis.data.model.DiaryViewModel
+import com.example.tesis.data.viewmodel.DiaryViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 

@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.tesis.admin.*
 import com.example.tesis.admin.config.AppConfigScreen
 import com.example.tesis.admin.edit.AdminEditUserScreen
 import com.example.tesis.admin.edit.AdminFoodHistoryScreen
@@ -23,6 +22,7 @@ import com.example.tesis.admin.gamesAdmin.DragDropAdminScreen
 import com.example.tesis.admin.gamesAdmin.GamesManagementScreen
 import com.example.tesis.admin.gamesAdmin.MemoryGameAdminScreen
 import com.example.tesis.admin.gamesAdmin.PreguntonAdminScreen
+import com.example.tesis.admin.home.AdminHomeScreen
 import com.example.tesis.admin.ia.AIConfigScreen
 import com.example.tesis.admin.reportes.AdminReportsScreen
 import com.example.tesis.admin.user.AdminUserScreen
@@ -33,9 +33,9 @@ import com.example.tesis.ui.screens.drawer.UserSettingsScreen
 import com.example.tesis.ui.screens.foodhistory.FoodHistoryScreen
 import com.example.tesis.ui.screens.home.*
 import com.example.tesis.ui.screens.games.*
-import com.example.tesis.ui.screens.mrpollo.MrPolloScreen
+import com.example.tesis.ui.screens.srpollo.MrPolloScreen
 import com.example.tesis.ui.screens.stats.StatsScreen
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 

@@ -1,12 +1,12 @@
 // Crea: viewmodel/UserSettingsViewModel.kt
-package com.example.tesis.data.model
+package com.example.tesis.data.viewmodel
 
 import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tesis.data.model.NotificationSettings
+import com.example.tesis.notifications.NotificationSettings
 import com.example.tesis.notifications.NotificationScheduler
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

@@ -3,7 +3,7 @@ package com.example.tesis.admin.edit
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tesis.ui.components.DiaryEntry
+import com.example.tesis.data.model.DiaryEntry
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query

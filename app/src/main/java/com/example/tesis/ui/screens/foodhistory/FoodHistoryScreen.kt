@@ -23,12 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.tesis.ui.components.DiaryEntry
+import com.example.tesis.data.model.DiaryEntry
 import com.example.tesis.ui.components.BottomNavBar
-import com.example.tesis.data.model.DiaryViewModel
+import com.example.tesis.data.viewmodel.DiaryViewModel
 import com.example.tesis.ui.screens.auth.DrawerMenu
 import com.example.tesis.ui.theme.*
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*

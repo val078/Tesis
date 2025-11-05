@@ -1,4 +1,4 @@
-package com.example.tesis.admin
+package com.example.tesis.admin.home
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*

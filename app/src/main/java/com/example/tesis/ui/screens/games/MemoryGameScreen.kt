@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.tesis.data.model.GameProgressViewModel
+import com.example.tesis.data.viewmodel.GameProgressViewModel
 import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.ConchodeVino
 import com.example.tesis.ui.theme.TextGray
-import com.example.tesis.viewmodel.AuthViewModel
-import com.example.tesis.ui.components.GameResult
+import com.example.tesis.data.viewmodel.AuthViewModel
+import com.example.tesis.data.model.GameResult
 import kotlinx.coroutines.delay
 import com.example.tesis.utils.TutorialManager
 import com.google.firebase.firestore.FirebaseFirestore

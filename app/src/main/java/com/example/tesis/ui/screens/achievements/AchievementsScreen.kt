@@ -27,13 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tesis.data.viewmodel.AchievementCategory
+import com.example.tesis.data.viewmodel.AchievementData
 import com.example.tesis.ui.components.BottomNavBar
-import com.example.tesis.data.model.GameProgressViewModel
-import com.example.tesis.data.model.MrPolloViewModel
+import com.example.tesis.data.viewmodel.GameProgressViewModel
+import com.example.tesis.data.viewmodel.MrPolloViewModel
 import com.example.tesis.ui.screens.auth.DrawerMenu
 import com.example.tesis.ui.screens.stats.getGamesPlayedToday
 import com.example.tesis.ui.theme.*
-import com.example.tesis.viewmodel.AuthViewModel
+import com.example.tesis.data.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

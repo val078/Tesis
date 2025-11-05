@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,8 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.TextGray
-import com.example.tesis.ui.components.FoodEntry
-import com.example.tesis.data.model.DiaryViewModel
+import com.example.tesis.data.model.FoodEntry
+import com.example.tesis.data.viewmodel.DiaryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

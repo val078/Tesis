@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tesis.R
-import com.example.tesis.ui.theme.PrimaryOrange
 import com.example.tesis.ui.theme.DarkOrange
 import com.example.tesis.ui.theme.CoralRed
 import com.example.tesis.ui.theme.ConchodeVino

@@ -1,4 +1,4 @@
-package com.example.tesis.data.model
+package com.example.tesis.notifications
 
 data class NotificationSettings(
     val enabled: Boolean = true,

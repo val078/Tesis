@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.tesis.ui.components.DiaryEntry
+import com.example.tesis.data.model.DiaryEntry
 import java.text.SimpleDateFormat
 import java.util.*
 

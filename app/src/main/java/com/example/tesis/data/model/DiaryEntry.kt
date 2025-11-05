@@ -1,4 +1,4 @@
-package com.example.tesis.ui.components
+package com.example.tesis.data.model
 
 import com.google.firebase.Timestamp
 
