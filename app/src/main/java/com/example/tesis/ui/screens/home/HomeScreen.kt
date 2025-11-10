@@ -292,7 +292,7 @@ private fun ImprovedHomeHeader(
         } else {
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "¡Bienvenido, $userName!",
+                    text = "¡Bienvenido!",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = ConchodeVino,
@@ -318,7 +318,7 @@ private fun ImprovedWelcomeBanner(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 140.dp, max = 270.dp) // ✅ Altura dinámica
+            .heightIn(min = 140.dp, max = 270.dp)
             .shadow(
                 elevation = 8.dp,
                 shape = RoundedCornerShape(24.dp),
@@ -397,18 +397,18 @@ private fun ImprovedWelcomeBanner(
                     )
                 }
             } else {
-                // ✅ Contenido real con IA MEJORADO
+                // Contenido con IA
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(20.dp),
-                    verticalAlignment = Alignment.Top // ✅ Cambio: de CenterVertically a Top
+                    verticalAlignment = Alignment.Top
                 ) {
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(), // ✅ Ocupa toda la altura
-                        verticalArrangement = Arrangement.spacedBy(8.dp) // ✅ Espaciado entre elementos
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = "¡Hola $userName!",
@@ -421,16 +421,16 @@ private fun ImprovedWelcomeBanner(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(1f) // ✅ Toma el espacio restante
+                                .weight(1f)
                                 .verticalScroll(rememberScrollState()) // ✅ Scroll si es muy largo
                         ) {
                             when (aiState) {
                                 is AIState.Idle -> {
                                     Text(
                                         text = "Leyendo tu diario...",
-                                        fontSize = 14.sp, // ✅ Más grande: de 13sp a 14sp
+                                        fontSize = 14.sp,
                                         color = Color(0xFF8B4513).copy(alpha = 0.8f),
-                                        lineHeight = 18.sp // ✅ Más alto: de 16sp a 18sp
+                                        lineHeight = 18.sp
                                     )
                                 }
 
@@ -441,9 +441,9 @@ private fun ImprovedWelcomeBanner(
                                 is AIState.Success -> {
                                     Text(
                                         text = aiState.recommendation,
-                                        fontSize = 14.sp, // ✅ Más grande: de 13sp a 14sp
-                                        color = Color(0xFF8B4513).copy(alpha = 0.9f), // ✅ Más opaco
-                                        lineHeight = 20.sp, // ✅ Más alto: de 16sp a 20sp
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF8B4513).copy(alpha = 0.9f),
+                                        lineHeight = 20.sp,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 }

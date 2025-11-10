@@ -116,10 +116,10 @@ class AIRepository private constructor() {
                 }
 
                 isLoading = true
-                Log.d("AIRepository", "🔄 Generando nueva recomendación")
+                Log.d("AIRepository", "Generando nueva recomendación")
 
                 val prompt = createPrompt(diaryEntries, config.systemPrompt)
-                Log.d("AIRepository", "📤 HACIENDO REQUEST A GEMINI")
+                Log.d("AIRepository", "Request a Gemini")
 
                 val aiResponse = generateContentWithRetry(prompt, maxRetries = 3)
 
@@ -352,7 +352,7 @@ class AIRepository private constructor() {
                 .add(log)
                 .await()
 
-            Log.d("AIRepository", "✅ Log guardado correctamente")
+            Log.d("AIRepository", "Log guardado correctamente")
         } catch (e: Exception) {
             Log.e("AIRepository", "Error guardando log: ${e.message}")
         }

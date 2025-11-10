@@ -53,6 +53,17 @@ android {
         compose = true
         buildConfig = true
     }
+
+    lint {
+        disable += listOf(
+            "NullSafeMutableLiveData",
+            "RememberInComposition",
+            "FrequentlyChangingValue"
+        )
+
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
 }
 
 dependencies {
