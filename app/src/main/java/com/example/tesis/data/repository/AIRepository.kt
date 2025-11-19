@@ -402,10 +402,13 @@ class AIRepository private constructor() {
         return """
 $systemPrompt
 
-Un niño/adolescente registró lo siguiente que comió hoy:
+Estas son las comidas registradas HOY por el usuario:
 
 $entriesText
-        """.trimIndent()
+
+Genera UNA SOLA recomendación breve (máximo 270 palabras), analizando el día completo.
+No hagas listas, no separes por comida, no uses subtítulos.
+""".trimIndent()
     }
 
     companion object {
@@ -422,7 +425,6 @@ $entriesText
     private fun cleanBrokenEmojis(text: String): String {
         if (text.isEmpty()) return text
 
-        // Verificar si el último carácter es un surrogate sin pareja
         val lastChar = text.last()
 
         return if (Character.isHighSurrogate(lastChar) || Character.isLowSurrogate(lastChar)) {
