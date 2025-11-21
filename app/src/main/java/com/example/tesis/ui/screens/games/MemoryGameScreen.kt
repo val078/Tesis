@@ -598,10 +598,13 @@ fun MemoryTutorialScreen(
                 )
 
                 when (step) {
+
+                    // STEP 0 --- Bienvenida
                     0 -> {
                         Text(
                             text = "¡Bienvenido al juego de memoria!",
                             fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
@@ -618,76 +621,127 @@ fun MemoryTutorialScreen(
                             fontSize = 56.sp
                         )
                     }
+
+                    // STEP 1 --- Los 3 grupos de alimentos
                     1 -> {
                         Text(
-                            text = "Así funciona:",
+                            text = "Tipos de alimentos:",
                             fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
+
+                        // Constructores
                         Text(
-                            text = "1️⃣ Toca dos cartas para voltearlas\n2️⃣ Si hacen pareja, ¡sumas puntos!\n3️⃣ Si no coinciden, se ocultan de nuevo",
+                            text = "1️⃣ Constructores = Para CRECER",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino
+                        )
+                        Text(
+                            text = "🥩🍗🥚 → 💪 Músculos fuertes",
+                            fontSize = 15.sp,
+                            color = TextGray,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        // Reguladores
+                        Text(
+                            text = "2️⃣ Reguladores = Te mantienen SANO",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino
+                        )
+                        Text(
+                            text = "🍎🥕🥦 → 🛡️ Defensas altas",
+                            fontSize = 15.sp,
+                            color = TextGray,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        // Energéticos
+                        Text(
+                            text = "3️⃣ Energéticos = Te dan ENERGÍA",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino
+                        )
+                        Text(
+                            text = "🍞🍌🍚 → 🔋 Para jugar y moverte",
+                            fontSize = 15.sp,
+                            color = TextGray
+                        )
+                    }
+
+                    // STEP 2 --- Cómo jugar
+                    2 -> {
+                        Text(
+                            text = "¿Cómo jugar?",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = "1️⃣ Toca dos cartas para voltearlas\n" +
+                                    "2️⃣ Busca alimento + beneficio\n" +
+                                    "3️⃣ Si coinciden → puntos ⭐\n" +
+                                    "4️⃣ Si fallan → se ocultan ❌",
                             fontSize = 15.sp,
                             color = ConchodeVino,
                             textAlign = TextAlign.Start,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
+
                         Text(
                             text = "🃏🃏 → ✅",
                             fontSize = 42.sp
                         )
                     }
-                    2 -> {
+
+                    // STEP 3 --- Ejemplos reales
+                    3 -> {
                         Text(
-                            text = "Tipos de parejas:",
+                            text = "Ejemplos:",
                             fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
+
                         Text(
-                            text = "🍎 + ❤️ = Corazón sano",
+                            text = "🥕 + 👁️ = Vista",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4CAF50),
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Text(
-                            text = "🥛 + 🦴 = Huesos fuertes",
+                            text = "🍎 + 🛡️ = Defensas",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFF7043),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = "🍞 + 💪 = Energía",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2196F3),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = "Empareja cada alimento con su beneficio",
-                            fontSize = 14.sp,
-                            color = TextGray,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    3 -> {
-                        Text(
-                            text = "¡Listo para jugar!",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ConchodeVino,
-                            textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
+
                         Text(
-                            text = "Tienes 3 rondas con tiempo límite",
-                            fontSize = 16.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = "¡Encuentra todas las parejas antes de que se acabe el tiempo!",
+                            text = "¡Ahora encuentra todas las parejas antes de que acabe el tiempo!",
                             fontSize = 15.sp,
                             color = TextGray,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 12.dp)
                         )
                     }
                 }
@@ -1087,44 +1141,38 @@ private fun createMemoryCardsForRound(round: Int): List<MemoryCardData> {
     return cards.shuffled()
 }
 
+// RONDA 1 - ALIMENTOS CONSTRUCTORES (Proteínas)
+// Versión SUPER ECUATORIANA (alternativa)
 private fun getRound1Pairs(): List<MemoryCardPair> {
     return listOf(
-        MemoryCardPair("🍎", "Corazón", "❤️"),       // manzana
-        MemoryCardPair("🥛", "Huesos", "🦴"),         // leche
-        MemoryCardPair("🥕", "Vista", "👁️"),          // zanahoria
-        MemoryCardPair("🥦", "Fuerza", "💪"),         // brócoli
-        MemoryCardPair("🍊", "Defensas", "🛡️"),      // naranja
-        MemoryCardPair("🐟", "Cerebro", "🧠")         // pescado
+        MemoryCardPair("🥛", "Huesos fuertes", "🦴"),      // leche
+        MemoryCardPair("🥚", "Músculos", "💪"),            // huevo de campo
+        MemoryCardPair("🐟", "Cerebro", "🧠"),             // corvina/albacora
+        MemoryCardPair("🦐", "Proteína", "💥"),            // camarón
+        MemoryCardPair("🍗", "Fuerza", "💪"),              // pollo criollo
+        MemoryCardPair("🫘", "Proteína vegetal", "🌱")     // menestra
     )
 }
 
-// Pares para Ronda 2 - Nutrientes Especiales
 private fun getRound2Pairs(): List<MemoryCardPair> {
     return listOf(
-        MemoryCardPair("🍌", "Energía", "⚡"),          // plátano
-        MemoryCardPair("🥚", "Proteína", "💪"),         // huevo
-        MemoryCardPair("🫐", "Memoria", "🧠"),          // arándano
-        MemoryCardPair("🥑", "Grasas buenas", "💚"),    // aguacate
-        MemoryCardPair("🍓", "Antioxidante", "🌟"),           // fresa
-        MemoryCardPair("🌰", "Resistencia", "🔋"),      // nuez
-        MemoryCardPair("🍅", "Piel", "✨"),              // tomate
-        MemoryCardPair("🫘", "Vegetal", "🌱")           // frijoles
+        MemoryCardPair("🍊", "Vitamina C", "🌟"),         // naranjilla/naranja
+        MemoryCardPair("🥭", "Defensas", "🛡️"),           // mango
+        MemoryCardPair("🍍", "Digestión", "✨"),          // piña
+        MemoryCardPair("🥑", "Grasa vegetal", "💚"),      // aguacate
+        MemoryCardPair("🍅", "Corazón sano", "❤️"),       // tomate de árbol
+        MemoryCardPair("🥕", "Buena vista", "👁️")        // zanahoria blanca
     )
 }
 
-// Pares para Ronda 3 - Super Alimentos
 private fun getRound3Pairs(): List<MemoryCardPair> {
     return listOf(
-        return listOf(
-            MemoryCardPair("🥝", "Defensas", "🛡️"),       // kiwi → refuerza defensas
-            MemoryCardPair("🍠", "Energía", "⚡"),          // camote
-            MemoryCardPair("🧄", "Protección", "🌟"),      // ajo
-            MemoryCardPair("🍯", "Natural", "🐝"),          // miel
-            MemoryCardPair("🌻", "Corazón", "❤️"),          // semillas
-            MemoryCardPair("🍋", "Cicatriza", "✨"),        // limón
-            MemoryCardPair("🥬", "Vitaminas", "🌈"),       // espinaca
-            MemoryCardPair("🥥", "Hidratación", "💧")      // coco
-        )
+        MemoryCardPair("🍚", "Para jugar", "🎮"),          // arroz
+        MemoryCardPair("🥔", "Energía", "⚡"),              // papa chola
+        MemoryCardPair("🌽", "Para crecer", "📈"),         // mote/choclo
+        MemoryCardPair("🍌", "Fuerza", "💪"),              // verde/maduro
+        MemoryCardPair("🍠", "Energía duradera", "🔋"),    // camote/yuca
+        MemoryCardPair("🫓", "Para correr", "🏃")          // pan de yuca
     )
 }
 

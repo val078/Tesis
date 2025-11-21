@@ -548,6 +548,46 @@ fun PreguntonTutorialScreen(
                     }
                     1 -> {
                         Text(
+                            text = "Antes de empezar…",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        Text(
+                            text = "🍽️ Principios para comer bien:",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextGray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = "• Come 5 veces al día 🍏\n" +
+                                    "• Varía tus comidas (de muchos colores) 🌈\n" +
+                                    "• Sirve porciones adecuadas ✋\n" +
+                                    "• Mastica despacio 🐢\n" +
+                                    "• Come sin pantallas 📵",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Start,
+                            lineHeight = 22.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = "Estos tips te ayudarán a responder mejor la trivia 🎯✨",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = ConchodeVino,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    2 -> {
+                        Text(
                             text = "Mecánica del juego:",
                             fontSize = 18.sp,
                             color = Color.Gray,
@@ -563,7 +603,7 @@ fun PreguntonTutorialScreen(
                             lineHeight = 22.sp
                         )
                     }
-                    2 -> {
+                    3 -> {
                         Text(
                             text = "Puntuación:",
                             fontSize = 18.sp,
@@ -599,7 +639,7 @@ fun PreguntonTutorialScreen(
                             color = Color(0xFFF44336)
                         )
                     }
-                    3 -> {
+                    4 -> {
                         Text(
                             text = "¡Listo para jugar!",
                             fontSize = 24.sp,

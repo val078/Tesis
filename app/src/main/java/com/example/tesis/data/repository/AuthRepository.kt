@@ -3,6 +3,7 @@ package com.example.tesis.data.repository
 import android.util.Log
 import com.example.tesis.data.model.AuthResult
 import com.example.tesis.data.model.User
+import com.example.tesis.utils.TutorialManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -171,6 +172,10 @@ class AuthRepository {
                 return AuthResult(success = false, message = "Error al iniciar sesión")
             }
 
+            // 🔥 AGREGAR AQUÍ: Limpiar caché de tutoriales al hacer login
+            TutorialManager.clearCache()
+            Log.d(TAG, "🧹 Caché de tutoriales limpiado para nuevo login")
+
             val user = getCurrentUser()
             if (user == null) {
                 return AuthResult(success = true, message = "Login exitoso sin datos de perfil")
@@ -222,6 +227,10 @@ class AuthRepository {
                 .set(user)
                 .await()
 
+            // 🔥 AGREGAR AQUÍ: Limpiar caché al registrar nuevo usuario
+            TutorialManager.clearCache()
+            Log.d(TAG, "🧹 Caché de tutoriales limpiado para nuevo registro")
+
             AuthResult(success = true, message = "Registro exitoso", user = user)
 
         } catch (e: Exception) {
@@ -231,6 +240,11 @@ class AuthRepository {
 
     fun logout() {
         Log.d(TAG, "🚪 Cerrando sesión")
+
+        // 🔥 AGREGAR AQUÍ: Limpiar caché de tutoriales al hacer logout
+        TutorialManager.clearCache()
+        Log.d(TAG, "🧹 Caché de tutoriales limpiado")
+
         auth.signOut()
         Log.d(TAG, "✅ Sesión cerrada")
     }

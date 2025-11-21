@@ -174,41 +174,76 @@ fun SwipeNutritionGame(navController: NavController) {
     // Verificar respuesta - SOLO funciona si el juego ha comenzado
     fun verifyAnswer() {
         if (!gameStarted || currentRound == null) return
+
         val correctSet = currentRound.correctItems.toSet()
         val selectedSet = selectedItems.toSet()
+
         val extraWrong = selectedSet.filter { !it.isHealthy }
         val missingCorrect = correctSet.filter { it !in selectedSet }
+        val correctlySelected = selectedSet.filter { it.isHealthy }
+
         var roundScore = 0
+
+        // ✔️ +10 por alimento saludable
         val correctCount = selectedSet.count { it.isHealthy }
         roundScore += correctCount * 10
+
+        // ✔️ -5 por chatarra
         roundScore -= extraWrong.size * 5
+
+        // Detectar si es perfecto
         val isPerfect = selectedSet.size == correctSet.size &&
                 missingCorrect.isEmpty() &&
                 extraWrong.isEmpty()
+
+        // 🔥 NUEVO: Generar mensaje detallado
         if (isPerfect) {
-            roundScore += 20
-            feedbackMessage = "¡Perfecto! +50 bonus"
+            roundScore += 50
+            feedbackMessage = "¡Perfecto! +50 bonus\n✅ Plato completamente balanceado"
             feedbackType = PlateFeedbackType.CORRECT
             totalCorrectRounds++
         } else if (extraWrong.isEmpty() && correctCount > 0) {
-            feedbackMessage = "¡Muy bien!"
+            val feedbackParts = mutableListOf<String>()
+
+            if (missingCorrect.isNotEmpty()) {
+                val missingNames = missingCorrect.joinToString(", ") { it.name }
+                feedbackParts.add("Te faltó: $missingNames")
+            }
+
+            if (correctlySelected.isNotEmpty()) {
+                feedbackParts.add("✅ Bien: ${correctlySelected.joinToString(", ") { it.emoji }}")
+            }
+
+            feedbackMessage = if (feedbackParts.isNotEmpty()) {
+                "¡Buen intento!\n${feedbackParts.joinToString("\n")}"
+            } else {
+                "¡Muy bien!"
+            }
             feedbackType = PlateFeedbackType.CORRECT
             totalCorrectRounds++
         } else if (extraWrong.isNotEmpty()) {
-            feedbackMessage = "¡Cuidado con los alimentos poco saludables!"
+            val wrongNames = extraWrong.joinToString(", ") { "${it.emoji} ${it.name}" }
+            val correctNames = if (correctlySelected.isNotEmpty()) {
+                "\n✅ Bien: ${correctlySelected.joinToString(", ") { it.emoji }}"
+            } else ""
+
+            feedbackMessage = "⚠️ Alimentos poco saludables:\n$wrongNames$correctNames\n\nIntenta elegir opciones más nutritivas"
             feedbackType = PlateFeedbackType.INCORRECT
         } else {
             feedbackMessage = "¡Intenta de nuevo!"
             feedbackType = PlateFeedbackType.INCORRECT
         }
+
+        // Nunca bajar de 0 puntos
         score = maxOf(0, score + roundScore)
+
         showFeedback = true
     }
 
     // Avanzar ronda
     LaunchedEffect(showFeedback) {
         if (showFeedback && gameRounds.isNotEmpty()) {
-            delay(2000L)
+            delay(5000L)
             showFeedback = false
             if (isLastRound) {
                 val result = GameResult(
@@ -269,7 +304,7 @@ fun SwipeNutritionGame(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Plato Saludable",
+                        text = "NutriChef",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = ConchodeVino
@@ -557,15 +592,6 @@ fun SwipeNutritionGame(navController: NavController) {
 
             // COUNTDOWN
             AnimatedVisibility(
-                visible = showCountdown && !showTutorial && !isLoadingGame,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                CountdownScreenPlate(countdownValue = countdownValue)
-            }
-
-            // Feedback
-            AnimatedVisibility(
                 visible = showFeedback,
                 enter = fadeIn() + scaleIn(),
                 exit = fadeOut() + scaleOut()
@@ -579,7 +605,8 @@ fun SwipeNutritionGame(navController: NavController) {
                     Card(
                         modifier = Modifier
                             .padding(32.dp)
-                            .widthIn(max = 300.dp),
+                            .widthIn(max = 350.dp)
+                            .heightIn(max = 500.dp), // 🔥 NUEVO: altura máxima
                         shape = RoundedCornerShape(32.dp),
                         colors = CardDefaults.cardColors(Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
@@ -589,20 +616,21 @@ fun SwipeNutritionGame(navController: NavController) {
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp)
+                                .padding(24.dp) // 🔥 Reducido para dar más espacio al texto
                         ) {
                             Text(
                                 text = if (feedbackType == PlateFeedbackType.CORRECT) "✅" else "🤔",
-                                fontSize = 72.sp
+                                fontSize = 56.sp // 🔥 Reducido un poco
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 text = feedbackMessage,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp, // 🔥 Tamaño más legible
+                                fontWeight = FontWeight.Medium,
                                 color = if (feedbackType == PlateFeedbackType.CORRECT)
                                     Color(0xFF4CAF50) else Color(0xFFFF9800),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                lineHeight = 22.sp // 🔥 Mejor espaciado entre líneas
                             )
                         }
                     }
@@ -690,89 +718,94 @@ fun NutriPlateTutorialScreen(
                 when (step) {
                     0 -> {
                         Text(
-                            text = "¡Bienvenido a Plato Saludable!",
+                            text = "¡Bienvenido a NutriChef!",
                             fontSize = 18.sp,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                         Text(
-                            text = "Aprende a armar platos nutritivos y balanceados",
+                            text = "Aprende a armar platos nutritivos usando alimentos reales",
                             fontSize = 16.sp,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        Text(
-                            text = "🍽️🥗",
-                            fontSize = 56.sp
-                        )
+                        Text("🍽️🥗", fontSize = 56.sp)
                     }
                     1 -> {
                         Text(
-                            text = "Mecánica del juego:",
+                            text = "Antes de jugar:",
                             fontSize = 18.sp,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                         Text(
-                            text = "1️⃣ Lee la pregunta sobre la comida\n2️⃣ Toca 3 alimentos para tu plato\n3️⃣ Presiona 'Verificar Plato'\n4️⃣ Completa las 4 rondas",
+                            text = "Tu plato debe tener 3 tipos de alimentos:",
                             fontSize = 15.sp,
-                            color = ConchodeVino,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            lineHeight = 22.sp
+                            color = TextGray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        Text("🍗 Constructores → Para crecer y tener músculos",
+                            fontSize = 15.sp, fontWeight = FontWeight.Bold, color = ConchodeVino)
+                        Text("🥦 Reguladores → Frutas y verduras que te mantienen sano",
+                            fontSize = 15.sp, fontWeight = FontWeight.Bold, color = ConchodeVino)
+                        Text("🍚 Energéticos → Te dan fuerza para jugar y estudiar",
+                            fontSize = 15.sp, fontWeight = FontWeight.Bold, color = ConchodeVino,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = "Solo puedes elegir 3 alimentos: uno de cada grupo.",
+                            fontSize = 15.sp,
+                            color = TextGray,
+                            textAlign = TextAlign.Center
                         )
                     }
                     2 -> {
                         Text(
-                            text = "Puntuación:",
+                            text = "¿Cómo elegir bien?",
                             fontSize = 18.sp,
                             color = Color.Gray,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        Text(
-                            text = "✅ +10 puntos por cada alimento saludable",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = "❌ -5 puntos por alimento no saludable",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFF44336),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            text = "🌟 +50 bonus por plato perfecto",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryOrange
-                        )
+
+                        Text("🖐️ Palma = Proteína (constructores)", fontSize = 15.sp, color = TextGray)
+                        Text("👊 Puño = Carbohidratos (energéticos)", fontSize = 15.sp, color = TextGray)
+                        Text("🤲 Dos manos = Frutas y verduras (reguladores)",
+                            fontSize = 15.sp, color = TextGray, modifier = Modifier.padding(bottom = 16.dp))
+
+                        Text("Puntuación:", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ConchodeVino)
+
+                        Text("✔️ +10 puntos por alimento saludable", fontSize = 15.sp, color = Color(0xFF4CAF50))
+                        Text("❌ -5 puntos por comida chatarra", fontSize = 15.sp, color = Color(0xFFF44336))
+                        Text("🌟 +50 si armas un plato perfecto",
+                            fontSize = 15.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                     }
                     3 -> {
                         Text(
-                            text = "¡Listo para jugar!",
-                            fontSize = 24.sp,
+                            text = "Ejemplos de platos correctos:",
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = ConchodeVino,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
+
+                        Text("🍗 + 🥦 + 🍚 = ✔️ Plato equilibrado", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("🍎 + 🥕 + 🍞 = ✔️ Variado y nutritivo", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("🍟 + 🍫 + 🧁 = ❌ No es saludable", fontSize = 17.sp, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 16.dp))
+
                         Text(
-                            text = "¡Arma platos saludables y aprende sobre nutrición!",
+                            text = "¡Listo! Ahora arma tus platos y demuestra qué tan buen chef saludable eres 🍽️✨",
                             fontSize = 15.sp,
                             color = TextGray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                        Text(
-                            text = "🥗✨",
-                            fontSize = 48.sp
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

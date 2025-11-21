@@ -109,7 +109,7 @@ fun NutriPlateAdminScreen(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        "Plato Saludable - Rondas",
+                        "NutriChef - Rondas",
                         color = Color(0xFF8B5E3C),
                         fontWeight = FontWeight.Bold
                     )

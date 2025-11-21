@@ -104,7 +104,7 @@ fun GamesManagementScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             GameCard(
-                title = "Plato Saludable",
+                title = "NutriChef",
                 emoji = "🍽️",
                 description = "Editar rondas de alimentos",
                 status = "Activo",
