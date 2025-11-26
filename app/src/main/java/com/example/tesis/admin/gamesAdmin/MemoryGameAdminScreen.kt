@@ -27,6 +27,7 @@ import kotlinx.coroutines.tasks.await
 
 data class MemoryPairAdmin(
     val emoji: String = "",
+    val emojiDesc: String = "",
     val benefitText: String = "",
     val benefitEmoji: String = ""
 )
@@ -73,6 +74,7 @@ fun MemoryGameAdminScreen(navController: NavController) {
                         pairs = pairsList.map { pairMap ->
                             MemoryPairAdmin(
                                 emoji = pairMap["emoji"] as? String ?: "",
+                                emojiDesc = pairMap["emojiDesc"] as? String ?: "",
                                 benefitText = pairMap["benefitText"] as? String ?: "",
                                 benefitEmoji = pairMap["benefitEmoji"] as? String ?: ""
                             )
@@ -220,6 +222,7 @@ fun MemoryGameAdminScreen(navController: NavController) {
                                             "pairs" to round.pairs.map { pair ->
                                                 mapOf(
                                                     "emoji" to pair.emoji,
+                                                    "emojiDesc" to pair.emojiDesc,
                                                     "benefitText" to pair.benefitText,
                                                     "benefitEmoji" to pair.benefitEmoji
                                                 )
@@ -600,7 +603,7 @@ private fun RoundDetailScreen(
 private fun PairItemCard(
     pair: MemoryPairAdmin,
     onEdit: () -> Unit,
-    onDelete: (() -> Unit)? = null // ⭐ Opcional
+    onDelete: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -614,12 +617,26 @@ private fun PairItemCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Emoji del alimento
-            Text(
-                text = pair.emoji,
-                fontSize = 32.sp,
-                modifier = Modifier.size(48.dp)
-            )
+            // Emoji del alimento + descripción
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.width(80.dp)
+            ) {
+                Text(
+                    text = pair.emoji,
+                    fontSize = 32.sp
+                )
+
+                if (pair.emojiDesc.isNotEmpty()) {
+                    Text(
+                        text = pair.emojiDesc,
+                        fontSize = 11.sp,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -656,7 +673,7 @@ private fun PairItemCard(
                 )
             }
 
-            // ⭐ Botón eliminar SOLO si onDelete no es null
+            // Botón eliminar
             onDelete?.let {
                 IconButton(onClick = it) {
                     Icon(
@@ -678,6 +695,7 @@ private fun PairEditDialog(
     onSave: (MemoryPairAdmin) -> Unit
 ) {
     var emoji by remember { mutableStateOf(pair?.emoji ?: "") }
+    var emojiDesc by remember { mutableStateOf(pair?.emojiDesc ?: "") }  // 🔥 NUEVO
     var benefitText by remember { mutableStateOf(pair?.benefitText ?: "") }
     var benefitEmoji by remember { mutableStateOf(pair?.benefitEmoji ?: "") }
 
@@ -687,20 +705,59 @@ private fun PairEditDialog(
             Text(if (pair == null) "Agregar Par" else "Editar Par")
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),  // 🔥 Hacer scrolleable
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Sección: Alimento
+                Text(
+                    text = "🍎 Alimento",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5D4037)
+                )
+
                 OutlinedTextField(
                     value = emoji,
                     onValueChange = { emoji = it },
-                    label = { Text("Emoji del alimento") },
+                    label = { Text("Emoji") },
                     placeholder = { Text("🍎") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                // 🔥 NUEVO: Campo para descripción del emoji
+                OutlinedTextField(
+                    value = emojiDesc,
+                    onValueChange = { emojiDesc = it },
+                    label = { Text("Descripción") },
+                    placeholder = { Text("Manzana") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    supportingText = {
+                        Text(
+                            "Nombre del alimento que aparecerá en la carta",
+                            fontSize = 11.sp
+                        )
+                    }
+                )
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                // Sección: Beneficio
+                Text(
+                    text = "✨ Beneficio",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5D4037)
+                )
+
                 OutlinedTextField(
                     value = benefitText,
                     onValueChange = { benefitText = it },
-                    label = { Text("Beneficio (texto)") },
+                    label = { Text("Texto del beneficio") },
                     placeholder = { Text("Corazón") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -719,11 +776,22 @@ private fun PairEditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (emoji.isNotEmpty() && benefitText.isNotEmpty() && benefitEmoji.isNotEmpty()) {
-                        onSave(MemoryPairAdmin(emoji, benefitText, benefitEmoji))
+                    if (emoji.isNotEmpty() &&
+                        emojiDesc.isNotEmpty() &&
+                        benefitText.isNotEmpty() &&
+                        benefitEmoji.isNotEmpty()) {
+                        onSave(MemoryPairAdmin(
+                            emoji = emoji,
+                            emojiDesc = emojiDesc,
+                            benefitText = benefitText,
+                            benefitEmoji = benefitEmoji
+                        ))
                     }
                 },
-                enabled = emoji.isNotEmpty() && benefitText.isNotEmpty() && benefitEmoji.isNotEmpty()
+                enabled = emoji.isNotEmpty() &&
+                        emojiDesc.isNotEmpty() &&
+                        benefitText.isNotEmpty() &&
+                        benefitEmoji.isNotEmpty()
             ) {
                 Text("Guardar")
             }

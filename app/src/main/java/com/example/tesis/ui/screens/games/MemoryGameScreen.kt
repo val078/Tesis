@@ -115,7 +115,8 @@ fun MemoryGameScreen(navController: NavController) {
                             MemoryCardPair(
                                 foodEmoji = pairMap["emoji"] as? String ?: "❓",
                                 benefitName = pairMap["benefitText"] as? String ?: "",
-                                benefitEmoji = pairMap["benefitEmoji"] as? String ?: "❓"
+                                benefitEmoji = pairMap["benefitEmoji"] as? String ?: "❓",
+                                foodName = pairMap["emojiDesc"] as? String ?: ""
                             )
                         }
                     )
@@ -1125,57 +1126,6 @@ private fun getPointsForRound(round: Int): Int {
     }
 }
 
-private fun createMemoryCardsForRound(round: Int): List<MemoryCardData> {
-    val pairs = when (round) {
-        1 -> getRound1Pairs()  // 6 pares = 12 cartas
-        2 -> getRound2Pairs()  // 8 pares = 16 cartas
-        3 -> getRound3Pairs()  // 8 pares = 16 cartas (reducido de 10)
-        else -> getRound1Pairs()
-    }
-    val cards = mutableListOf<MemoryCardData>()
-    pairs.forEachIndexed { index, pair ->
-        cards.add(MemoryCardData(id = index * 2, emoji = pair.foodEmoji, label = "", pairId = index))
-        cards.add(MemoryCardData(id = index * 2 + 1, emoji = pair.benefitEmoji, label = pair.benefitName, pairId = index))
-    }
-
-    return cards.shuffled()
-}
-
-// RONDA 1 - ALIMENTOS CONSTRUCTORES (Proteínas)
-// Versión SUPER ECUATORIANA (alternativa)
-private fun getRound1Pairs(): List<MemoryCardPair> {
-    return listOf(
-        MemoryCardPair("🥛", "Huesos fuertes", "🦴"),      // leche
-        MemoryCardPair("🥚", "Músculos", "💪"),            // huevo de campo
-        MemoryCardPair("🐟", "Cerebro", "🧠"),             // corvina/albacora
-        MemoryCardPair("🦐", "Proteína", "💥"),            // camarón
-        MemoryCardPair("🍗", "Fuerza", "💪"),              // pollo criollo
-        MemoryCardPair("🫘", "Proteína vegetal", "🌱")     // menestra
-    )
-}
-
-private fun getRound2Pairs(): List<MemoryCardPair> {
-    return listOf(
-        MemoryCardPair("🍊", "Vitamina C", "🌟"),         // naranjilla/naranja
-        MemoryCardPair("🥭", "Defensas", "🛡️"),           // mango
-        MemoryCardPair("🍍", "Digestión", "✨"),          // piña
-        MemoryCardPair("🥑", "Grasa vegetal", "💚"),      // aguacate
-        MemoryCardPair("🍅", "Corazón sano", "❤️"),       // tomate de árbol
-        MemoryCardPair("🥕", "Buena vista", "👁️")        // zanahoria blanca
-    )
-}
-
-private fun getRound3Pairs(): List<MemoryCardPair> {
-    return listOf(
-        MemoryCardPair("🍚", "Para jugar", "🎮"),          // arroz
-        MemoryCardPair("🥔", "Energía", "⚡"),              // papa chola
-        MemoryCardPair("🌽", "Para crecer", "📈"),         // mote/choclo
-        MemoryCardPair("🍌", "Fuerza", "💪"),              // verde/maduro
-        MemoryCardPair("🍠", "Energía duradera", "🔋"),    // camote/yuca
-        MemoryCardPair("🫓", "Para correr", "🏃")          // pan de yuca
-    )
-}
-
 @Composable
 private fun MemoryCard(
     card: MemoryCardData,
@@ -1290,11 +1240,6 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
         else -> 10.sp
     }
 
-    val typeFontSize = when (cardSize) {
-        60.dp -> 7.sp
-        70.dp -> 7.sp
-        else -> 8.sp
-    }
 
     val backgroundColor = when {
         isMatched -> Color(0xFFE8F5E8)
@@ -1321,7 +1266,7 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
             .background(backgroundColor, RoundedCornerShape(12.dp))
             .border(2.dp, borderColor, RoundedCornerShape(12.dp))
     ) {
-        // 🧩 Contenido principal
+
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -1373,17 +1318,9 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = if (isFoodCard) "Alimento" else "Nutriente",
-                        fontSize = typeFontSize,
-                        fontWeight = FontWeight.Medium,
-                        color = textColor.copy(alpha = 0.7f)
-                    )
                 }
             }
 
-            // ✅ Check verde correctamente alineado
             if (isMatched) {
                 Box(
                     modifier = Modifier
@@ -1405,6 +1342,7 @@ private fun CardFront(card: MemoryCardData, isMatched: Boolean, cardSize: Dp = 8
         }
     }
 }
+
 @Composable
 fun MemoryGameReflectionScreen(
     score: Int,
@@ -1495,7 +1433,11 @@ fun MemoryGameReflectionScreen(
                     StatItem(
                         emoji = "⭐",
                         label = "Eficiencia",
-                        value = if (moves > 0) "${(score * 100 / moves).toInt()}/mov" else "0"
+                        value = if (moves > 0) {
+                            val minMoves = totalRounds * 2 // Movimientos mínimos (cada par = 2 volteos)
+                            val efficiency = ((minMoves.toFloat() / moves) * 100).toInt().coerceIn(0, 100)
+                            "$efficiency%"
+                        } else "0%"
                     )
                 }
 
@@ -2033,7 +1975,7 @@ private fun createMemoryCardsFromRound(round: MemoryGameRound): List<MemoryCardD
             MemoryCardData(
                 id = index * 2,
                 emoji = pair.foodEmoji,
-                label = "",
+                label = pair.foodName,
                 pairId = index
             )
         )
@@ -2061,7 +2003,8 @@ data class MemoryCardData(
 data class MemoryCardPair(
     val foodEmoji: String,
     val benefitName: String,
-    val benefitEmoji: String
+    val benefitEmoji: String,
+    val foodName: String
 )
 
 data class MemoryGameRound(

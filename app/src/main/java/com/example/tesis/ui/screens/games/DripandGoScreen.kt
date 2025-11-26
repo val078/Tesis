@@ -732,6 +732,24 @@ fun GameReflectionScreen(
     onExit: () -> Unit,
     onRestart: () -> Unit
 ) {
+    // Determinar el comentario basado en la puntuación
+    val reflectionMessage = when {
+        score == 100 -> "¡Increíble! Reconociste TODOS los alimentos correctamente. ¡Eres un NutriChef experto!"
+        score in 70..99 -> "Recuerda que comer alimentos saludables te garantiza jugar, estudiar y crecer fuerte. ¡Incluye más frutas y verduras en tu día a día!"
+        score in 40..69 -> "¡Lo hiciste bien! Solo fallaste algunas opciones. ¡Sigue así!"
+        score in 10..39 -> "¡Buen trabajo! Aún puedes mejorar. Algunas comidas parecían saludables, pero no lo eran."
+        else -> "Continúa esforzándote, tienes un gran espíritu competitivo. ¡Esta información es variada y creemos que con la práctica la dominarás!"
+    }
+
+    // Determinar emoji basado en la puntuación
+    val emoji = when {
+        score == 100 -> "🏆"
+        score >= 70 -> "🎉"
+        score >= 40 -> "👍"
+        score >= 10 -> "💪"
+        else -> "🌟"
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -750,7 +768,7 @@ fun GameReflectionScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "🎉 ¡Buen trabajo!",
+                    text = "$emoji ¡Buen trabajo!",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = ConchodeVino,
@@ -820,9 +838,9 @@ fun GameReflectionScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Reflexión
+                // Reflexión dinámica basada en la puntuación
                 Text(
-                    text = "Recuerda que comer alimentos saludables te da energía para jugar, estudiar y crecer fuerte. ¡Intenta comer más frutas y verduras!",
+                    text = reflectionMessage,
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center

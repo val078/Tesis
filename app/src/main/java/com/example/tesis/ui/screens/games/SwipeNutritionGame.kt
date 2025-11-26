@@ -86,7 +86,13 @@ fun SwipeNutritionGame(navController: NavController) {
     var gameStatus by remember { mutableStateOf(PlateGameStatus.PLAYING) }
     var totalCorrectRounds by remember { mutableIntStateOf(0) }
 
-    // ⭐ NUEVO: Cargar rondas desde Firestore
+    // Estados para el quiz de porciones
+    var showPortionQuiz by remember { mutableStateOf(false) }
+    var selectedQuizAnswer by remember { mutableIntStateOf(-1) }
+    var showQuizFeedback by remember { mutableStateOf(false) }
+    val portionQuizzes = remember { getPortionQuizzes() }
+
+    // Cargar rondas desde Firestore
     LaunchedEffect(Unit) {
         try {
             Log.d("NutriPlateGame", "🔄 Cargando rondas desde Firestore...")
@@ -243,9 +249,13 @@ fun SwipeNutritionGame(navController: NavController) {
     // Avanzar ronda
     LaunchedEffect(showFeedback) {
         if (showFeedback && gameRounds.isNotEmpty()) {
-            delay(5000L)
+            delay(4000L)
             showFeedback = false
-            if (isLastRound) {
+            val currentQuiz = portionQuizzes.getOrNull(currentRoundIndex)
+            if (currentQuiz != null && !isLastRound) {
+                showPortionQuiz = true
+            } else if (isLastRound) {
+                // Si es la última ronda, mostrar reflexión
                 val result = GameResult(
                     gameId = "nutri_plate",
                     score = score,
@@ -267,6 +277,17 @@ fun SwipeNutritionGame(navController: NavController) {
                 currentRoundIndex++
                 selectedItems = emptyList()
             }
+        }
+    }
+
+    LaunchedEffect(showQuizFeedback) {
+        if (showQuizFeedback) {
+            delay(4000L) // 3 segundos para leer la explicación
+            showQuizFeedback = false
+            showPortionQuiz = false
+            selectedQuizAnswer = -1
+            currentRoundIndex++
+            selectedItems = emptyList()
         }
     }
 
@@ -565,6 +586,24 @@ fun SwipeNutritionGame(navController: NavController) {
                             }
                         }
                     }
+                }
+            }
+
+            // Quiz de porciones
+            if (showPortionQuiz) {
+                val currentQuiz = portionQuizzes.getOrNull(currentRoundIndex)
+                if (currentQuiz != null) {
+                    PortionQuizModal(
+                        quiz = currentQuiz,
+                        selectedAnswer = selectedQuizAnswer,
+                        showFeedback = showQuizFeedback,
+                        onAnswerSelected = { index ->
+                            selectedQuizAnswer = index
+                        },
+                        onConfirm = {
+                            showQuizFeedback = true
+                        }
+                    )
                 }
             }
 
@@ -1231,6 +1270,173 @@ private fun GameFinishedModal(
     }
 }
 
+@Composable
+fun PortionQuizModal(
+    quiz: PortionQuiz,
+    selectedAnswer: Int,
+    showFeedback: Boolean,
+    onAnswerSelected: (Int) -> Unit,
+    onConfirm: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(32.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Título
+                Text(
+                    text = "¡Aprende las porciones!",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ConchodeVino,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Pregunta
+                Text(
+                    text = quiz.question,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Opciones
+                quiz.options.forEachIndexed { index, option ->
+                    val isSelected = selectedAnswer == index
+                    val isCorrect = index == quiz.correctAnswerIndex
+                    val showResult = showFeedback
+
+                    val backgroundColor = when {
+                        showResult && isCorrect -> Color(0xFFE8F5E9)
+                        showResult && isSelected && !isCorrect -> Color(0xFFFFEBEE)
+                        isSelected -> Color(0xFFFFF8F0)
+                        else -> Color.White
+                    }
+
+                    val borderColor = when {
+                        showResult && isCorrect -> Color(0xFF4CAF50)
+                        showResult && isSelected && !isCorrect -> Color(0xFFF44336)
+                        isSelected -> PrimaryOrange
+                        else -> Color.LightGray
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = !showFeedback) {
+                                onAnswerSelected(index)
+                            },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+                        border = BorderStroke(2.dp, borderColor),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = if (isSelected) 8.dp else 2.dp
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = option.emoji,
+                                fontSize = 36.sp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = option.text,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = ConchodeVino
+                            )
+
+                            if (showResult && isCorrect) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "✅", fontSize = 24.sp)
+                            }
+                            if (showResult && isSelected && !isCorrect) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "❌", fontSize = 24.sp)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                // Explicación (solo cuando se muestra feedback)
+                if (showFeedback) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFFF3E0)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "💡", fontSize = 24.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = quiz.explanation,
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                lineHeight = 20.sp
+                            )
+                        }
+                    }
+                }
+
+                // Botón
+                if (!showFeedback) {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = onConfirm,
+                        enabled = selectedAnswer != -1,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PrimaryOrange
+                        )
+                    ) {
+                        Text(
+                            "Confirmar",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Data classes y enums para NutriPlate Game
 data class GameRound(
     val question: String,
@@ -1263,4 +1469,61 @@ enum class PlateGameStatus {
 
 enum class PlateFeedbackType {
     CORRECT, INCORRECT
+}
+
+// Data class para el quiz de porciones
+data class PortionQuiz(
+    val question: String,
+    val options: List<PortionOption>,
+    val correctAnswerIndex: Int,
+    val explanation: String
+)
+
+data class PortionOption(
+    val emoji: String,
+    val text: String
+)
+
+// Preguntas del quiz basadas en el PDF
+fun getPortionQuizzes(): List<PortionQuiz?> {
+    return listOf(
+        // Quiz después de Ronda 1 (Constructores - Proteínas)
+        PortionQuiz(
+            question = "¿Cómo se miden las proteínas (pollo, pescado, huevos)?",
+            options = listOf(
+                PortionOption("🖐️", "Palma de la mano"),
+                PortionOption("✊", "Puño cerrado"),
+                PortionOption("🤲", "Dos manos")
+            ),
+            correctAnswerIndex = 0, // Palma
+            explanation = "Las proteínas se miden con la palma de tu mano. Así sabes cuánto pollo, pescado o carne comer."
+        ),
+
+        // Quiz después de Ronda 2 (Reguladores - Frutas y verduras)
+        PortionQuiz(
+            question = "¿Cómo se miden las frutas y verduras?",
+            options = listOf(
+                PortionOption("🖐️", "Palma de la mano"),
+                PortionOption("✊", "Puño cerrado"),
+                PortionOption("🤲", "Dos manos juntas")
+            ),
+            correctAnswerIndex = 2, // Dos manos
+            explanation = "Las frutas y verduras se miden con dos manos juntas. ¡Debes comer muchas para estar sano!"
+        ),
+
+        // Quiz después de Ronda 3 (Energéticos - Carbohidratos)
+        PortionQuiz(
+            question = "¿Cómo se miden los carbohidratos (arroz, papa, pan)?",
+            options = listOf(
+                PortionOption("🖐️", "Palma de la mano"),
+                PortionOption("✊", "Puño cerrado"),
+                PortionOption("🤲", "Dos manos")
+            ),
+            correctAnswerIndex = 1, // Puño
+            explanation = "Los carbohidratos se miden con tu puño cerrado. Así sabes cuánto arroz o papa comer."
+        ),
+
+        // null para Ronda 4 (no hay quiz)
+        null
+    )
 }
