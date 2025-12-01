@@ -257,7 +257,7 @@ private fun LockedGameMessage(gameName: String) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Vuelve mañana para jugar de nuevo 🌅",
+                    text = "Vuelve mañana para jugar de nuevo",
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
@@ -413,29 +413,20 @@ private fun GamesGrid(
 ) {
     val games = listOf(
         GameCard(
-            gameId = "drip_and_drop",
-            title = "Drag & Drop",
-            emoji = "🍓",
-            description = "Arrastra los alimentos a su lado correcto",
-            gradientColors = listOf(Color(0xFFFF9AA2), Color(0xFFFFB6C1)),
-            route = "game_drip_go"
-        ),
-        GameCard(
-            gameId = "nutri_plate",
-            title = "NutriChef",
-            emoji = "🍎",
-            description = "Completa un plato nutritivo",
-            gradientColors = listOf(Color(0xFFFF8C42), Color(0xFFFFA500)),
-            textColor = Color.White,
-            route = "game_nutriswipe"
-        ),
-        GameCard(
             gameId = "pregunton",
             title = "Preguntón",
             emoji = "🥐",
             description = "Responde preguntas sobre alimentación saludable",
             gradientColors = listOf(Color(0xFFC17B5A), Color(0xFFD4A574)),
             route = "pregunton"
+        ),
+        GameCard(
+            gameId = "drip_and_drop",
+            title = "Drag & Drop",
+            emoji = "🍓",
+            description = "Arrastra los alimentos a su lado correcto",
+            gradientColors = listOf(Color(0xFFFF9AA2), Color(0xFFFFB6C1)),
+            route = "game_drip_go"
         ),
         GameCard(
             gameId = "memory_game",
@@ -445,6 +436,15 @@ private fun GamesGrid(
             gradientColors = listOf(Color(0xFFA8E6CF), Color(0xFF88D3C5)),
             textColor = Color(0xFF5D4037),
             route = "memory_game"
+        ),
+        GameCard(
+            gameId = "nutri_plate",
+            title = "NutriChef",
+            emoji = "🍎",
+            description = "Completa un plato nutritivo",
+            gradientColors = listOf(Color(0xFFFF8C42), Color(0xFFFFA500)),
+            textColor = Color.White,
+            route = "game_nutriswipe"
         )
     )
 
@@ -611,7 +611,7 @@ private fun GameCardItem(
                 }
             }
 
-            // ✅ Overlay de bloqueo
+            // Overlay de bloqueo
             if (isLocked) {
                 Box(
                     modifier = Modifier

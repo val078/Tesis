@@ -308,7 +308,7 @@ fun MemoryGameScreen(navController: NavController) {
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "🧠 Memoria Saludable",
+                            text = "🧠 Memoria",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = ConchodeVino
@@ -1445,7 +1445,7 @@ fun MemoryGameReflectionScreen(
 
                 // Reflexión
                 Text(
-                    text = "Recuerda que recordar los beneficios de los alimentos saludables te ayuda a tomar mejores decisiones. ¡Intenta comer más frutas y verduras!",
+                    text = "Recordar los beneficios de los alimentos saludables te ayuda a tomar mejores decisiones. ¡Intenta comer más frutas y verduras!",
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center

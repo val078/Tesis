@@ -1489,7 +1489,7 @@ fun getPortionQuizzes(): List<PortionQuiz?> {
     return listOf(
         // Quiz después de Ronda 1 (Constructores - Proteínas)
         PortionQuiz(
-            question = "¿Cómo se miden las proteínas (pollo, pescado, huevos)?",
+            question = "¿Cómo mides las proteínas (pollo, pescado, huevos)?",
             options = listOf(
                 PortionOption("🖐️", "Palma de la mano"),
                 PortionOption("✊", "Puño cerrado"),
@@ -1501,7 +1501,7 @@ fun getPortionQuizzes(): List<PortionQuiz?> {
 
         // Quiz después de Ronda 2 (Reguladores - Frutas y verduras)
         PortionQuiz(
-            question = "¿Cómo se miden las frutas y verduras?",
+            question = "¿Cómo mides las frutas y verduras?",
             options = listOf(
                 PortionOption("🖐️", "Palma de la mano"),
                 PortionOption("✊", "Puño cerrado"),
@@ -1513,7 +1513,7 @@ fun getPortionQuizzes(): List<PortionQuiz?> {
 
         // Quiz después de Ronda 3 (Energéticos - Carbohidratos)
         PortionQuiz(
-            question = "¿Cómo se miden los carbohidratos (arroz, papa, pan)?",
+            question = "¿Cómo mides los carbohidratos (arroz, papa, pan)?",
             options = listOf(
                 PortionOption("🖐️", "Palma de la mano"),
                 PortionOption("✊", "Puño cerrado"),
