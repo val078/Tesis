@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import com.example.tesis.utils.TutorialManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import androidx.compose.material.icons.filled.Close
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,6 +81,8 @@ fun PreguntonScreen(navController: NavController) {
     var totalCorrectAnswers by remember { mutableIntStateOf(0) }
     var timeLeft by remember { mutableIntStateOf(15) }
     var isTimerRunning by remember { mutableStateOf(false) }
+
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // ⭐ NUEVO: Cargar preguntas desde Firestore
     LaunchedEffect(Unit) {
@@ -181,6 +185,35 @@ fun PreguntonScreen(navController: NavController) {
         }
     }
 
+    fun exitAndMarkCompleted() {
+        coroutineScope.launch {
+            try {
+                val current = authViewModel.currentUser.value
+                if (current != null && current.userId.isNotEmpty()) {
+                    // Marcar el juego como completado
+                    val result = GameResult(
+                        gameId = "pregunton",
+                        score = score,
+                        correctAnswers = totalCorrectAnswers,
+                        totalQuestions = questions.size,
+                        timeLeft = timeLeft,
+                        streak = currentQuestionIndex,
+                        extraData = mapOf(
+                            "lives" to lives,
+                            "completed" to true // Marcar como salida voluntaria
+                        )
+                    )
+                    gameProgressViewModel.saveGameResult("pregunton", result)
+                    Log.d("PreguntonGame", "✅ Juego marcado como completado al salir")
+                }
+            } catch (e: Exception) {
+                Log.e("PreguntonGame", "❌ Error al marcar completado", e)
+            } finally {
+                navController.popBackStack()
+            }
+        }
+    }
+
     // Manejar selección de respuesta
     fun handleAnswer(answerIndex: Int) {
         if (!gameStarted || showFeedback || selectedAnswer != null) return
@@ -251,12 +284,32 @@ fun PreguntonScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Trivia Nutricional",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ConchodeVino
-                    )
+                    // Usar Row para incluir el botón X
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Preguntón",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino
+                        )
+
+                        // BOTÓN X PARA SALIR
+                        IconButton(
+                            onClick = { showExitDialog = true },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Salir del juego",
+                                tint = ConchodeVino,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -403,6 +456,13 @@ fun PreguntonScreen(navController: NavController) {
                     onPrevious = {
                         if (tutorialStep > 0) tutorialStep--
                     }
+                )
+            }
+
+            if (showExitDialog) {
+                ExitConfirmationDialogTrivia(
+                    onConfirm = { exitAndMarkCompleted() },
+                    onDismiss = { showExitDialog = false }
                 )
             }
 
@@ -1496,6 +1556,60 @@ private fun VictoryModal(
             }
         }
     }
+}
+
+@Composable
+fun ExitConfirmationDialogTrivia(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                tint = PrimaryOrange,
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "¿Salir del juego?",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = ConchodeVino
+            )
+        },
+        text = {
+            Text(
+                text = "Tu progreso actual se guardará y el juego se marcará como completado.",
+                textAlign = TextAlign.Center,
+                color = TextGray,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Sí, salir", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("Continuar jugando", color = ConchodeVino)
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(24.dp)
+    )
 }
 
 // Data classes

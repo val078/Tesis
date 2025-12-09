@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,6 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import androidx.compose.material.icons.filled.Close
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +93,8 @@ fun SwipeNutritionGame(navController: NavController) {
     var selectedQuizAnswer by remember { mutableIntStateOf(-1) }
     var showQuizFeedback by remember { mutableStateOf(false) }
     val portionQuizzes = remember { getPortionQuizzes() }
+
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // Cargar rondas desde Firestore
     LaunchedEffect(Unit) {
@@ -174,6 +178,36 @@ fun SwipeNutritionGame(navController: NavController) {
             }
             gameStarted = true
             showCountdown = false
+        }
+    }
+
+    fun exitAndMarkCompleted() {
+        coroutineScope.launch {
+            try {
+                val current = authViewModel.currentUser.value
+                if (current != null && current.userId.isNotEmpty()) {
+                    // Marcar el juego como completado
+                    val result = GameResult(
+                        gameId = "nutri_plate",
+                        score = score,
+                        correctAnswers = totalCorrectRounds,
+                        totalQuestions = gameRounds.size,
+                        timeLeft = 0,
+                        streak = totalCorrectRounds,
+                        extraData = mapOf(
+                            "roundsCompleted" to currentRoundIndex + 1,
+                            "totalRounds" to gameRounds.size,
+                            "completed" to true // Marcar como salida voluntaria
+                        )
+                    )
+                    gameProgressViewModel.saveGameResult("nutri_plate", result)
+                    Log.d("NutriPlateGame", "✅ Juego marcado como completado al salir")
+                }
+            } catch (e: Exception) {
+                Log.e("NutriPlateGame", "❌ Error al marcar completado", e)
+            } finally {
+                navController.popBackStack()
+            }
         }
     }
 
@@ -324,12 +358,32 @@ fun SwipeNutritionGame(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "NutriChef",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ConchodeVino
-                    )
+                    // Usar Row para incluir el botón X
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "NutriChef",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ConchodeVino
+                        )
+
+                        // ⭐ BOTÓN X PARA SALIR
+                        IconButton(
+                            onClick = { showExitDialog = true },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Salir del juego",
+                                tint = ConchodeVino,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
@@ -626,6 +680,13 @@ fun SwipeNutritionGame(navController: NavController) {
                     onPrevious = {
                         if (tutorialStep > 0) tutorialStep--
                     }
+                )
+            }
+
+            if (showExitDialog) {
+                ExitConfirmationDialogNutriPlate(
+                    onConfirm = { exitAndMarkCompleted() },
+                    onDismiss = { showExitDialog = false }
                 )
             }
 
@@ -1435,6 +1496,60 @@ fun PortionQuizModal(
             }
         }
     }
+}
+
+@Composable
+fun ExitConfirmationDialogNutriPlate(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                tint = PrimaryOrange,
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "¿Salir del juego?",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = ConchodeVino
+            )
+        },
+        text = {
+            Text(
+                text = "Tu progreso actual se guardará y el juego se marcará como completado.",
+                textAlign = TextAlign.Center,
+                color = TextGray,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Sí, salir", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("Continuar jugando", color = ConchodeVino)
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(24.dp)
+    )
 }
 
 // Data classes y enums para NutriPlate Game

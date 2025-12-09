@@ -54,6 +54,9 @@ import androidx.compose.runtime.collectAsState
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +103,8 @@ fun DripGoGameScreen(navController: NavController) {
     var healthyZoneSize by remember { mutableStateOf(Offset.Zero) }
     var junkZonePosition by remember { mutableStateOf(Offset.Zero) }
     var junkZoneSize by remember { mutableStateOf(Offset.Zero) }
+
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // ⭐ NUEVO: Cargar alimentos desde Firestore
     LaunchedEffect(Unit) {
@@ -270,6 +275,30 @@ fun DripGoGameScreen(navController: NavController) {
         }
     }
 
+    fun exitAndMarkCompleted() {
+        coroutineScope.launch {
+            try {
+                val current = authViewModel.currentUser.value
+                if (current != null && current.userId.isNotEmpty()) {
+                    val result = GameResult(
+                        gameId = "drip_and_drop",
+                        score = score,
+                        correctAnswers = correctAnswersCount,
+                        totalQuestions = allFoodItems.size,
+                        timeLeft = timeLeft,
+                        streak = streak
+                    )
+                    gameProgressViewModel.saveGameResult("drip_and_drop", result)
+                    Log.d("DripGoGame", "✅ Juego marcado como completado al salir")
+                }
+            } catch (e: Exception) {
+                Log.e("DripGoGame", "❌ Error al marcar completado", e)
+            } finally {
+                navController.popBackStack()
+            }
+        }
+    }
+
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFFFFF8F0),
@@ -282,13 +311,29 @@ fun DripGoGameScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = "Drag & Drop",
+                            text = "Arrastra y Suelta",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = ConchodeVino
                         )
+
+                        IconButton(
+                            onClick = { showExitDialog = true },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Salir del juego",
+                                tint = ConchodeVino,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -303,6 +348,7 @@ fun DripGoGameScreen(navController: NavController) {
                 .padding(innerPadding)
                 .background(backgroundGradient)
         ) {
+
             // ⭐ NUEVO: Mostrar loading mientras carga
             if (isLoadingFoods) {
                 Box(
@@ -539,6 +585,12 @@ fun DripGoGameScreen(navController: NavController) {
                         }
                     )
                 }
+            }
+            if (showExitDialog) {
+                ExitConfirmationDialog(
+                    onConfirm = { exitAndMarkCompleted() },
+                    onDismiss = { showExitDialog = false }
+                )
             }
         }
     }
@@ -1412,6 +1464,60 @@ private fun FeedbackContent(feedbackType: FeedbackType) {
             }
         }
     }
+}
+
+@Composable
+fun ExitConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                tint = PrimaryOrange,
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "¿Salir del juego?",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = ConchodeVino
+            )
+        },
+        text = {
+            Text(
+                text = "Tu progreso actual se guardará y el juego se marcará como completado.",
+                textAlign = TextAlign.Center,
+                color = TextGray,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Sí, salir", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("Continuar jugando", color = ConchodeVino)
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(24.dp)
+    )
 }
 
 

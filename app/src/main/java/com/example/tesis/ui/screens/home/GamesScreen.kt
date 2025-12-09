@@ -422,7 +422,7 @@ private fun GamesGrid(
         ),
         GameCard(
             gameId = "drip_and_drop",
-            title = "Drag & Drop",
+            title = "Arrastra y Suelta",
             emoji = "🍓",
             description = "Arrastra los alimentos a su lado correcto",
             gradientColors = listOf(Color(0xFFFF9AA2), Color(0xFFFFB6C1)),

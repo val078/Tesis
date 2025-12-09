@@ -50,14 +50,36 @@ fun DiaryScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
-        return // ⭐ IMPORTANTE: Salir temprano
+        return
     }
 
     val foodEntries by diaryViewModel.foodEntries.collectAsState()
+    // ⭐ NUEVO: Log para verificar que tenemos usuario y datos
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            Log.d("DiaryScreen", "✅ Usuario activo: ${currentUser?.userId}")
+            Log.d("DiaryScreen", "📊 Entradas actuales: ${foodEntries.size}")
+        }
+    }
 
+    // ⭐ Log cada vez que cambian las entradas
+    LaunchedEffect(foodEntries) {
+        Log.d("DiaryScreen", "🔄 Entradas actualizadas. Total: ${foodEntries.size}")
+        foodEntries.forEach { (date, entries) ->
+            Log.d("DiaryScreen", "  📅 $date: ${entries.size} entradas")
+        }
+    }
+
+    // ⭐ CRÍTICO: Usar zona horaria de Ecuador SIEMPRE
+    val ecuadorTimeZone = remember { java.util.TimeZone.getTimeZone("America/Guayaquil") }
+
+    val currentCalendar = remember {
+        Calendar.getInstance(ecuadorTimeZone).apply {
+            Log.d("DiaryScreen", "📅 Fecha actual Ecuador: ${get(Calendar.DAY_OF_MONTH)}/${get(Calendar.MONTH)+1}/${get(Calendar.YEAR)}")
+        }
+    }
     var showDrawer by remember { mutableStateOf(false) }
 
-    val currentCalendar = Calendar.getInstance()
     val currentYear = currentCalendar.get(Calendar.YEAR)
     val currentMonth = currentCalendar.get(Calendar.MONTH) + 1
 
@@ -174,11 +196,21 @@ fun DiaryScreen(
                         month = selectedMonth,
                         diaryViewModel = diaryViewModel,
                         onDateSelected = { day ->
-                            val calendar = Calendar.getInstance().apply {
+                            // ⭐ FIX CRÍTICO: Usar zona horaria de Ecuador
+                            val calendar = Calendar.getInstance(ecuadorTimeZone).apply {
                                 set(Calendar.YEAR, selectedYear)
                                 set(Calendar.MONTH, selectedMonth - 1)
                                 set(Calendar.DAY_OF_MONTH, day)
+                                set(Calendar.HOUR_OF_DAY, 12) // ⭐ NUEVO: Forzar mediodía para evitar cambios de día
+                                set(Calendar.MINUTE, 0)
+                                set(Calendar.SECOND, 0)
+                                set(Calendar.MILLISECOND, 0)
                             }
+
+                            // ⭐ LOG para debug
+                            Log.d("DiaryScreen", "🗓️ Fecha seleccionada: $day/${selectedMonth}/${selectedYear}")
+                            Log.d("DiaryScreen", "📅 Calendar creado: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH)+1}/${calendar.get(Calendar.YEAR)}")
+
                             selectedDate = calendar
                             showDateModal = true
                         }
@@ -400,6 +432,7 @@ private fun CalendarGrid(
     val currentYear = currentDate.get(Calendar.YEAR)
     val currentMonth = currentDate.get(Calendar.MONTH) + 1
     val currentDay = currentDate.get(Calendar.DAY_OF_MONTH)
+    val adjustedFirstDay = if (firstDayOfWeek == 0) 6 else firstDayOfWeek - 1
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -411,13 +444,12 @@ private fun CalendarGrid(
             ) {
                 for (dayOfWeek in 0 until 7) {
                     val cellIndex = week * 7 + dayOfWeek
-                    val dayNumber = cellIndex - firstDayOfWeek + 1
+                    val dayNumber = cellIndex - adjustedFirstDay + 1
 
                     Box(modifier = Modifier.weight(1f)) {
                         if (dayNumber in 1..daysInMonth) {
                             val dateString = formatDate(selectedYear, selectedMonth, dayNumber)
 
-                            // ⭐ CAMBIO: Obtener de la map observada
                             val dayEntries = foodEntriesMap[dateString] ?: emptyList()
 
                             val isToday = selectedYear == currentYear &&
@@ -516,18 +548,24 @@ private fun formatDate(year: Int, month: Int, day: Int): String {
         set(Calendar.YEAR, year)
         set(Calendar.MONTH, month - 1)
         set(Calendar.DAY_OF_MONTH, day)
+        set(Calendar.HOUR_OF_DAY, 12) // ⭐ NUEVO: Mediodía para evitar cambios
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
     }
 
     val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
     val formattedDate = "${dayOfWeekNames[dayOfWeek].replaceFirstChar { it.uppercase() }} $day de ${monthNames[month - 1]}"
 
-    // ✅ LOG CRÍTICO
-    Log.d("DiaryScreen", "📅 Fecha generada: '$formattedDate'")
+    // ✅ LOG CRÍTICO - Verificar que la fecha es correcta
+    Log.d("DiaryScreen", "📅 formatDate IN: $day/$month/$year")
+    Log.d("DiaryScreen", "📅 formatDate OUT: '$formattedDate'")
+    Log.d("DiaryScreen", "📅 Calendar final: ${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH)+1}/${calendar.get(Calendar.YEAR)}")
 
     return formattedDate
 }
 
-// ✅ Modal para detalles de la fecha - CORREGIDO
+// Modal para detalles de la fecha
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateDetailModal(
@@ -541,19 +579,33 @@ private fun DateDetailModal(
     val dayOfWeekNames = listOf("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
 
     val ecuadorTimeZone = java.util.TimeZone.getTimeZone("America/Guayaquil")
+
+    // ⭐ FIX: Crear nuevo calendario en zona horaria Ecuador
     val ecuadorCalendar = Calendar.getInstance(ecuadorTimeZone).apply {
-        time = selectedDate.time
+        timeInMillis = selectedDate.timeInMillis
+        // ⭐ IMPORTANTE: Asegurar que sea mediodía
+        set(Calendar.HOUR_OF_DAY, 12)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
     }
 
     val day = ecuadorCalendar.get(Calendar.DAY_OF_MONTH)
     val month = ecuadorCalendar.get(Calendar.MONTH)
+    val year = ecuadorCalendar.get(Calendar.YEAR)
     val dayOfWeek = ecuadorCalendar.get(Calendar.DAY_OF_WEEK) - 1
 
     val dateString = "${dayOfWeekNames[dayOfWeek].replaceFirstChar { it.uppercase() }} $day de ${monthNames[month]}"
 
-    // ⭐ CAMBIO: Observar el StateFlow
+    // ⭐ LOG para debug
+    Log.d("DiaryScreen", "🔍 DateDetailModal:")
+    Log.d("DiaryScreen", "  - Día: $day, Mes: ${month+1}, Año: $year")
+    Log.d("DiaryScreen", "  - String generado: '$dateString'")
+
     val foodEntriesMap by diaryViewModel.foodEntries.collectAsState()
     val foodEntries = foodEntriesMap[dateString] ?: emptyList()
+
+    Log.d("DiaryScreen", "  - Entradas encontradas: ${foodEntries.size}")
 
     var entryToEdit by remember { mutableStateOf<FoodEntry?>(null) }
     var entryToDelete by remember { mutableStateOf<FoodEntry?>(null) }
@@ -584,15 +636,23 @@ private fun DateDetailModal(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 8.dp)
         ) {
+            // ⭐ Mostrar fecha completa con año para debug
             Text(
                 text = dateString,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            // ⭐ La lista se actualiza automáticamente
+            // ⭐ NUEVO: Mostrar fecha numérica para verificar
+            Text(
+                text = "$day/${month+1}/$year",
+                fontSize = 12.sp,
+                color = TextGray,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
             if (foodEntries.isNotEmpty()) {
                 Column {
                     foodEntries.forEach { entry ->
@@ -605,10 +665,31 @@ private fun DateDetailModal(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                // ⭐ NUEVO: Mensaje cuando no hay entradas
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFF3E0)
+                    )
+                ) {
+                    Text(
+                        text = "📝 No hay alimentos registrados para este día",
+                        fontSize = 14.sp,
+                        color = TextGray,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             Button(
-                onClick = onAddFood,
+                onClick = {
+                    Log.d("DiaryScreen", "➕ Navegando a add_food con: $dateString")
+                    onAddFood()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

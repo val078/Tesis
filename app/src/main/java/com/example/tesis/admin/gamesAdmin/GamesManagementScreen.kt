@@ -71,7 +71,7 @@ fun GamesManagementScreen(navController: NavController) {
 
             // Grid de juegos
             GameCard(
-                title = "Drag & Drop",
+                title = "Arrastra y Suelta",
                 emoji = "🎯",
                 description = "Editar alimentos saludables y chatarra",
                 status = "Activo",

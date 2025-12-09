@@ -40,7 +40,7 @@ import java.util.Calendar
 import kotlin.math.roundToInt
 
 private val ALL_GAMES = listOf(
-    GameMetadata("drip_and_drop", "Drag & Drop", "🎯", Color(0xFFFF6B35)),
+    GameMetadata("drip_and_drop", "Arrastra y Suelta", "🎯", Color(0xFFFF6B35)),
     GameMetadata("memory_game", "Memoria", "🧠", Color(0xFF4CAF50)),
     GameMetadata("pregunton", "Preguntón", "❓", Color(0xFF2196F3)),
     GameMetadata("nutri_plate", "NutriChef", "📝", Color(0xFF9C27B0))

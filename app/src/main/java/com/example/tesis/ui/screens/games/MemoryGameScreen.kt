@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -88,6 +90,8 @@ fun MemoryGameScreen(navController: NavController) {
     var flippedCards by remember { mutableStateOf<Set<Int>>(emptySet()) }
     var matchedCards by remember { mutableStateOf<Set<Int>>(emptySet()) }
     var isProcessing by remember { mutableStateOf(false) }
+
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // ⭐ NUEVO: Cargar configuración del juego desde Firestore
     LaunchedEffect(Unit) {
@@ -183,6 +187,37 @@ fun MemoryGameScreen(navController: NavController) {
             }
             if (timeLeft <= 0) {
                 gameStatus = MemoryGameStatus.TIME_UP
+            }
+        }
+    }
+
+    fun exitAndMarkCompleted() {
+        coroutineScope.launch {
+            try {
+                val current = authViewModel.currentUser.value
+                if (current != null && current.userId.isNotEmpty()) {
+                    // Marcar el juego como completado
+                    val result = GameResult(
+                        gameId = "memory_game",
+                        score = score,
+                        correctAnswers = matchedPairs,
+                        totalQuestions = gameRounds.sumOf { it.pairsCount },
+                        timeLeft = timeLeft,
+                        streak = currentRound,
+                        extraData = mapOf(
+                            "moves" to moves,
+                            "totalRounds" to gameRounds.size,
+                            "currentRound" to currentRound,
+                            "completed" to true // Marcar como salida voluntaria
+                        )
+                    )
+                    gameProgressViewModel.saveGameResult("memory_game", result)
+                    Log.d("MemoryGame", "✅ Juego marcado como completado al salir")
+                }
+            } catch (e: Exception) {
+                Log.e("MemoryGame", "❌ Error al marcar completado", e)
+            } finally {
+                navController.popBackStack()
             }
         }
     }
@@ -306,13 +341,33 @@ fun MemoryGameScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "🧠 Memoria",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ConchodeVino
-                        )
+                    // ⭐ CAMBIO: Usar Row para incluir el botón X
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "🧠 Memoria",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ConchodeVino
+                            )
+                        }
+
+                        // ⭐ BOTÓN X PARA SALIR
+                        IconButton(
+                            onClick = { showExitDialog = true },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Salir del juego",
+                                tint = ConchodeVino,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -492,6 +547,12 @@ fun MemoryGameScreen(navController: NavController) {
                     onPrevious = {
                         if (tutorialStep > 0) tutorialStep--
                     }
+                )
+            }
+            if (showExitDialog) {
+                ExitConfirmationDialogM(
+                    onConfirm = { exitAndMarkCompleted() },
+                    onDismiss = { showExitDialog = false }
                 )
             }
 
@@ -1992,6 +2053,60 @@ private fun createMemoryCardsFromRound(round: MemoryGameRound): List<MemoryCardD
     return cards.shuffled()
 }
 
+@Composable
+fun ExitConfirmationDialogM(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                tint = PrimaryOrange,
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "¿Salir del juego?",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = ConchodeVino
+            )
+        },
+        text = {
+            Text(
+                text = "Tu progreso actual se guardará y el juego se marcará como completado.",
+                textAlign = TextAlign.Center,
+                color = TextGray,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Sí, salir", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("Continuar jugando", color = ConchodeVino)
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(24.dp)
+    )
+}
+
 // Data classes
 data class MemoryCardData(
     val id: Int,
@@ -2013,7 +2128,7 @@ data class MemoryGameRound(
     val description: String,
     val timeLimit: Int,
     val pairsCount: Int,
-    val pairs: List<MemoryCardPair> = emptyList() // ⭐ NUEVO: agregar lista de pares
+    val pairs: List<MemoryCardPair> = emptyList() // agregar lista de pares
 )
 enum class MemoryGameStatus {
     PLAYING, ROUND_COMPLETED, COMPLETED, TIME_UP

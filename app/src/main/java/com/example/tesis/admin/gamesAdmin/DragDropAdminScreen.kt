@@ -88,7 +88,7 @@ fun DragDropAdminScreen(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        "Drag & Drop - Alimentos",
+                        "Arrastra y Suelta - Alimentos",
                         color = Color(0xFF8B5E3C),
                         fontWeight = FontWeight.Bold
                     )

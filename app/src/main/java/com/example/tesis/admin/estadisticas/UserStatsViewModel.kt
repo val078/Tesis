@@ -57,7 +57,7 @@ class UserStatsViewModel : ViewModel() {
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val gameMetadata = mapOf(
-        "drip_and_drop" to Pair("Drag & Drop", "🎯"),
+        "drip_and_drop" to Pair("Arrastra y Suelta", "🎯"),
         "memory_game" to Pair("Memoria", "🧠"),
         "pregunton" to Pair("Preguntón", "❓"),
         "nutri_plate" to Pair("NutriChef", "📝")
